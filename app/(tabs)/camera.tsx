@@ -35,6 +35,7 @@ export default function CameraScreen() {
             quality: 1,
             base64: false,
             shutterSound: false,
+            mirror: facing === 'front',
         };
         const { uri } = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
         setPicture(uri);
