@@ -1,74 +1,142 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture, FlashMode } from 'expo-camera';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedProps } from 'react-native-reanimated';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    const [facing, setFacing] = useState<CameraType>('back');
+    const [permission, requestPermission] = useCameraPermissions();
+    const cameraRef = useRef<CameraView>(null);
+    const [picture, setPicture] = useState<string | null>(null);
+    const [flash, setFlash] = useState<boolean>(false);
+
+    if (!permission) {
+        //This means that the permissions aren't loaded yet
+        return <View />;
+    }
+    if (!permission.granted) {
+        //This is if the permissions are denied
+        return (
+            <View style={styles.container}>
+                <Text style={styles.message}>We need your permission to show the camera</Text>
+                <Button onPress={requestPermission} title="grant permission" />
+            </View>
+        );
+    }
+
+    const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd(() => {
+        handleFlipCamera();
+    })
+    .runOnJS(true);
+
+    const handleTakePicture = async () => {
+        if (!cameraRef.current) {
+            return;
+        }
+        const options: CameraPictureOptions = {
+            quality: 1,
+            base64: false,
+            shutterSound: false,
+            mirror: facing === 'front',
+        };
+        const { uri } = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
+        setPicture(uri);
+    };
+
+    const handleRetakePicture = () => {
+        setPicture(null);
+    };
+
+    const handleFlipCamera = () => {
+        setFacing(facing === 'back' ? 'front' : 'back');
+    };
+
+    const handleFlash = () => {
+        setFlash(!flash);
+    };
+
+    return (
+        <GestureHandlerRootView>
+        <GestureDetector gesture={doubleTap}>
+        <View style={styles.container}>
+        {picture ? (
+            <Image source={{ uri: picture }} style={styles.camera} />
+        ) : (
+            <CameraView style={styles.camera} facing={facing} mirror={true} ref={cameraRef} enableTorch={flash}>
+            <View style={styles.controls}>
+                <TouchableOpacity style={styles.flipButton} onPress={handleFlipCamera}>
+                    <IconSymbol name="camera.rotate.fill" size={32} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.shutterButton} onPress={handleTakePicture} >
+                    <IconSymbol name="camera.fill" size={75} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.galleryButton} onPress={handleFlash}>
+                    <MaterialIcons name={flash ? "flash-on" : "flash-off"} size={32} color="white" />
+                </TouchableOpacity>
+            </View>
+            </CameraView>
+        )}
+        {picture && (
+            <View style={styles.retakeButtonContainer}>
+            <Button title="Retake" onPress={handleRetakePicture} />
+            </View>
+        )}
+        </View>
+        </GestureDetector>
+        </GestureHandlerRootView>
+    );
 }
 
+const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+    },
+    camera: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    controls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: 20,
+        paddingHorizontal: 20,
+    },
+    flipButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 60,
+        height: 60,
+    },
+    shutterButton: {
+        margin: 0,
+        padding: 0,
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        backgroundColor: 'white',
+        alignSelf: 'center',
+    },
+    galleryButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 60,
+        height: 60,
+    },
+    message: {
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10,
+    },
+    retakeButtonContainer: {
+      position: 'absolute',
+      bottom: 20,
+      alignSelf: 'center',
+    },
 });

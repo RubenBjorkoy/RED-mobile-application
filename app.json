@@ -40,6 +40,14 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationPermission": "Allow $(PRODUCT_NAME) to access your location",
+          "alwaysLocationPermission": "Allow $(PRODUCT_NAME) to access your location",
+          "geofencing": true
+        }
       ]
     ],
     "experiments": {

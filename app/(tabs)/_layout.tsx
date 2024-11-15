@@ -25,26 +25,41 @@ export default function TabLayout() {
           },
           default: {},
         }),
+        tabBarShowLabel: false,
       }}>
-      <Tabs.Screen
-        name="index"
+      <Tabs.Screen 
+        name="map"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Map',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="filtered"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Your Errors',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3.decrease.circle" color={color} />,
         }}
       />
       <Tabs.Screen 
-        name="camera"
+        name="index"
         options={{
           title: 'Camera',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="unfiltered"
+        options={{
+          title: 'All Errors',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3.decrease.circle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear.circle.fill" color={color} />,
         }}
       />
     </Tabs>
