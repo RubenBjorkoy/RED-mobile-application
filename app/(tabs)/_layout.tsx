@@ -11,7 +11,7 @@ import FilteredScreen from './filtered';
 import HomeScreen from '.';
 import UnfilteredScreen from './unfiltered';
 import SettingsScreen from './settings';
-import { tabBarHeight } from '@/constants/measures';
+import { tabBarHeight } from '@/constants/Measures';
 
 const Tab = createMaterialTopTabNavigator();
 

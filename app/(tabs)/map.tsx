@@ -5,7 +5,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useClusterer } from 'react-native-clusterer';
 import { LocationProps, MarkerProps } from '@/utils/types';
-import { tabBarHeight } from '@/constants/measures';
+import { tabBarHeight } from '@/constants/Measures';
 
 export default function MapScreen() {
     const mapRef = React.useRef<MapView>(null);

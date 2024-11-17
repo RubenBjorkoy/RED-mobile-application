@@ -5,7 +5,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { tabBarHeight } from '@/constants/measures';
+import { tabBarHeight } from '@/constants/Measures';
 
 export default function FilteredScreen() {
   return (

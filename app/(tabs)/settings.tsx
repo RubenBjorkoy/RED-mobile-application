@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Text, TouchableOpacity, Button } from 'react-native';
+import { StyleSheet, Image, Text, TouchableOpacity, Button, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState, useEffect } from 'react';
 
@@ -9,7 +9,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
-import { tabBarHeight } from '@/constants/measures';
+import { tabBarHeight } from '@/constants/Measures';
 
 interface User {
     image: string;
@@ -37,7 +37,7 @@ export default function SettingsScreen() {
     const PROFILE_PICTURE = require('@/assets/images/react-logo.png');
 
     return (
-        <GestureHandlerRootView style={styles.container}>
+        <GestureHandlerRootView>
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
                 headerImage={
@@ -48,87 +48,89 @@ export default function SettingsScreen() {
                         style={styles.headerImage}
                     />
             }>
-                <ThemedView style={styles.titleContainer}>
-                    <ThemedText type="title">Settings</ThemedText>
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Profile Picture</ThemedText>
-                    <TouchableOpacity
-                        onPress={() => console.log('Profile Picture pressed')}
-                        style={{ width: '100%' }}
-                    >
-                        <Image
-                            source={PROFILE_PICTURE}
-                            style={styles.profileAvatar}
-                        />
-                    </TouchableOpacity>
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Username</ThemedText>
-                        <TextInput 
-                            style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
-                            placeholder="Username"
-                            placeholderTextColor={'gray'}
-                            value={user.name}
-                            onChange={(e) => setUser({ ...user, name: e.nativeEvent.text })}
-                        />
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Group</ThemedText>
-                        <Picker
-                            style={{ width: '100%', color: 'white' }}
-                            onValueChange={(itemValue: string) => setUser({ ...user, group: itemValue })}
-                            selectedValue={user.group}
+                <View style={styles.container}>
+                    <ThemedView style={styles.titleContainer}>
+                        <ThemedText type="title">Settings</ThemedText>
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Profile Picture</ThemedText>
+                        <TouchableOpacity
+                            onPress={() => console.log('Profile Picture pressed')}
+                            style={{ width: '100%' }}
                         >
-                            <Picker.Item label="Board" value="board" />
-                            <Picker.Item label="Marketing" value="marketing" />
-                            <Picker.Item label="Embedded Electronics" value="embeddedelectronics" />
-                            <Picker.Item label="Powertrain" value="powertrain" />
-                            <Picker.Item label="Aerodynamics" value="aerodynamics" />
-                            <Picker.Item label="Chassis" value="chassis" />
-                            <Picker.Item label="Suspension" value="suspension" />
-                            <Picker.Item label="Drivetrain" value="drivetrains" />
-                            <Picker.Item label="Control Systems" value="controlsystems" />
-                            <Picker.Item label="Data Engineering" value="dataengineering" />
-                            <Picker.Item label="Autonomous Systems" value="autonomoussystems" />
-                        </Picker>
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Role</ThemedText>
-                        <TextInput
-                            style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
-                            placeholder="Role"
-                            placeholderTextColor={'gray'}
-                            value={user.role}
-                            onChange={(e) => setUser({ ...user, role: e.nativeEvent.text })}
-                        />
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Theme</ThemedText>
-                        <Picker
-                            style={{ width: '100%', color: 'white' }}
-                            onValueChange={(itemValue: string) => setUser({ ...user, theme: itemValue })}
-                            selectedValue={user.theme}
-                        >
-                            <Picker.Item label="Dark" value="dark" />
-                            <Picker.Item label="Light" value="light" />
-                        </Picker>
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <ThemedText>Language</ThemedText>
-                        <Picker
-                            style={{ width: '100%', color: 'white' }}
-                            onValueChange={(itemValue: string) => setUser({ ...user, language: itemValue })}
-                            selectedValue={user.language}
-                        >
-                            <Picker.Item label="English" value="en" />
-                            <Picker.Item label="Norwegian" value="no" />
-                        </Picker>
-                </ThemedView>
-                <ThemedView style={styles.inputContainer}>
-                    <Button title="Cancel" color="#cc0000" onPress={() => console.log('Cancel pressed')} />
-                    <Button title="Apply" color="#00bb00" onPress={() => console.log('Save pressed')} />
-                </ThemedView>
+                            <Image
+                                source={PROFILE_PICTURE}
+                                style={styles.profileAvatar}
+                            />
+                        </TouchableOpacity>
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Username</ThemedText>
+                            <TextInput 
+                                style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
+                                placeholder="Username"
+                                placeholderTextColor={'gray'}
+                                value={user.name}
+                                onChange={(e) => setUser({ ...user, name: e.nativeEvent.text })}
+                            />
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Group</ThemedText>
+                            <Picker
+                                style={{ width: '100%', color: 'white' }}
+                                onValueChange={(itemValue: string) => setUser({ ...user, group: itemValue })}
+                                selectedValue={user.group}
+                            >
+                                <Picker.Item label="Board" value="board" />
+                                <Picker.Item label="Marketing" value="marketing" />
+                                <Picker.Item label="Embedded Electronics" value="embeddedelectronics" />
+                                <Picker.Item label="Powertrain" value="powertrain" />
+                                <Picker.Item label="Aerodynamics" value="aerodynamics" />
+                                <Picker.Item label="Chassis" value="chassis" />
+                                <Picker.Item label="Suspension" value="suspension" />
+                                <Picker.Item label="Drivetrain" value="drivetrains" />
+                                <Picker.Item label="Control Systems" value="controlsystems" />
+                                <Picker.Item label="Data Engineering" value="dataengineering" />
+                                <Picker.Item label="Autonomous Systems" value="autonomoussystems" />
+                            </Picker>
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Role</ThemedText>
+                            <TextInput
+                                style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
+                                placeholder="Role"
+                                placeholderTextColor={'gray'}
+                                value={user.role}
+                                onChange={(e) => setUser({ ...user, role: e.nativeEvent.text })}
+                            />
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Theme</ThemedText>
+                            <Picker
+                                style={{ width: '100%', color: 'white' }}
+                                onValueChange={(itemValue: string) => setUser({ ...user, theme: itemValue })}
+                                selectedValue={user.theme}
+                            >
+                                <Picker.Item label="Dark" value="dark" />
+                                <Picker.Item label="Light" value="light" />
+                            </Picker>
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <ThemedText>Language</ThemedText>
+                            <Picker
+                                style={{ width: '100%', color: 'white' }}
+                                onValueChange={(itemValue: string) => setUser({ ...user, language: itemValue })}
+                                selectedValue={user.language}
+                            >
+                                <Picker.Item label="English" value="en" />
+                                <Picker.Item label="Norwegian" value="no" />
+                            </Picker>
+                    </ThemedView>
+                    <ThemedView style={styles.inputContainer}>
+                        <Button title="Cancel" color="#cc0000" onPress={() => console.log('Cancel pressed')} />
+                        <Button title="Apply" color="#00bb00" onPress={() => console.log('Save pressed')} />
+                    </ThemedView>
+                </View>
             </ParallaxScrollView>
         </GestureHandlerRootView>
     );
@@ -136,9 +138,6 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         marginBottom: tabBarHeight
     },
     titleContainer: {

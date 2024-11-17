@@ -11,7 +11,7 @@ import { PermissionResponse } from 'expo-media-library';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { PictureProps, ErrorProps } from '@/utils/types';
 import * as Location from 'expo-location';
-import { tabBarHeight } from '@/constants/measures';
+import { tabBarHeight } from '@/constants/Measures';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
