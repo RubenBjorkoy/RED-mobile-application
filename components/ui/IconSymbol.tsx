@@ -22,6 +22,8 @@ const MAPPING = {
   'location.fill': 'my-location',
   'pin.fill': 'person-pin-circle',
   'xmark': 'close',
+  'arrow.down.circle' : 'file-download',
+  'checkmark.circle' : 'file-download-done',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
 } as Partial<

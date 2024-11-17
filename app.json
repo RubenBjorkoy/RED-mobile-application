@@ -42,6 +42,13 @@
         }
       ],
       [
+        "expo-media-library",
+        {
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
         "expo-location",
         {
           "locationPermission": "Allow $(PRODUCT_NAME) to access your location",

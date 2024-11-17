@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Vibration, Platform } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Vibration, Platform, Alert } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedProps } from 'react-native-reanimated';
 import { vibrate } from '@/utils/vibrate';
+import * as MediaLibrary from 'expo-media-library';
+import { PermissionResponse } from 'expo-media-library';
 
 interface PictureProps {
     uri: string;
@@ -15,9 +17,19 @@ interface PictureProps {
 export default function HomeScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
+    const [mediaLibraryPermissionGranted, setMediaLibraryPermissionGranted] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+            const { granted } = await MediaLibrary.requestPermissionsAsync();
+            setMediaLibraryPermissionGranted(granted);
+        })();
+    }, []);
+
     const cameraRef = useRef<CameraView>(null);
     const [picture, setPicture] = useState<PictureProps | null>(null);
     const [flash, setFlash] = useState<boolean>(false);
+    const [downloaded, setDownloaded] = useState<boolean>(false);
 
     if (!permission) {
         //This means that the permissions aren't loaded yet
@@ -45,6 +57,7 @@ export default function HomeScreen() {
         if (!cameraRef.current) {
             return;
         }
+        setDownloaded(false);
         const options: CameraPictureOptions = {
             quality: 1,
             base64: false,
@@ -59,20 +72,31 @@ export default function HomeScreen() {
         });
     };
 
-    const getImageRotation = (orientation: number): string => {
-        switch (orientation) {
-            case 1: // Rotated left
-                return '90deg';
-            case 3: // Rotated right
-                return '-90deg';
-            case 6: // Upright Portrait
-                return '0deg';
-            case 8: // Rotated left
-                return '180deg';
-            default: // Normal
-                return '0deg';
+    const saveToLibrary = async (uri: string) => {
+        try {
+            await MediaLibrary.saveToLibraryAsync(uri);
+            Alert.alert('Success', 'Picture saved to gallery');
+            setDownloaded(true);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save picture to gallery');
+            console.error(error);
         }
-    };
+    }
+
+    // const getImageRotation = (orientation: number): string => {
+    //     switch (orientation) {
+    //         case 1: // Rotated left
+    //             return '90deg';
+    //         case 3: // Rotated right
+    //             return '-90deg';
+    //         case 6: // Upright Portrait
+    //             return '0deg';
+    //         case 8: // Rotated left
+    //             return '180deg';
+    //         default: // Normal
+    //             return '0deg';
+    //     }
+    // };
 
     const handleRetakePicture = () => {
         vibrate(15);
@@ -96,10 +120,7 @@ export default function HomeScreen() {
         {picture ? (
             <Image
                 source={{ uri: picture.uri }}
-                style={[
-                    styles.camera,
-                    { transform: [{ rotate: getImageRotation(picture.orientation) }] },
-                ]}
+                style={{ flex: 1 }}
             />
         ) : (
             <CameraView 
@@ -124,9 +145,23 @@ export default function HomeScreen() {
             </CameraView>
         )}
         {picture && (
+            <View style={styles.pictureOptions}>
                 <TouchableOpacity style={styles.retakeButtonContainer} onPress={handleRetakePicture}>
                     <IconSymbol name="xmark" size={42} color="white" />
                 </TouchableOpacity>
+                {
+                    !downloaded ? (
+                        <TouchableOpacity style={styles.downloadButton} onPress={() => saveToLibrary(picture.uri)}>
+                            <IconSymbol name="arrow.down.circle" size={42} color="white" />
+                        </TouchableOpacity>
+                    ) : (
+                        <View style={styles.downloadButton}>
+                            <IconSymbol name="checkmark.circle" size={42} color="white" />
+                        </View>
+                    )
+                }
+                
+            </View>
         )}
         </View>
         </GestureDetector>
@@ -134,7 +169,7 @@ export default function HomeScreen() {
     );
 }
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -165,25 +200,27 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         alignSelf: 'center',
     },
+    pictureOptions: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        top: 40,
+        height: height - 80,
+        paddingHorizontal: 20,
+    },
     message: {
         fontSize: 20,
         textAlign: 'center',
         margin: 10,
     },
     retakeButtonContainer: {
-      position: 'absolute',
-      top: 40,
-      left: 20,
+      zIndex: 10,
+    },
+    downloadButton: {
+      zIndex: 10,
     },
     button: {
-        padding: 10,
-    },
-    retakeButton: {
-        position: 'absolute',
-        bottom: 40,
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        borderRadius: 5,
         padding: 10,
     },
     buttonText: {
