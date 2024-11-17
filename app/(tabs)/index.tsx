@@ -129,7 +129,7 @@ export default function HomeScreen() {
         {picture ? (
             <Image
                 source={{ uri: picture.uri }}
-                style={{ flex: 1 }}
+                style={styles.imagePreview}
             />
         ) : (
             <CameraView 
@@ -139,8 +139,7 @@ export default function HomeScreen() {
                 ref={cameraRef} 
                 enableTorch={flash} 
                 animateShutter={false}
-                // pictureSize='176x144'
-                // ratio="fill"
+                ratio="4:3"
             >
             <View style={styles.controls}>
                 <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
@@ -186,6 +185,7 @@ const styles = StyleSheet.create({
     camera: {
         flex: 1,
         justifyContent: 'flex-end',
+        resizeMode: 'contain',
     },
     controls: {
         flexDirection: 'row',
@@ -235,5 +235,9 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         color: 'black',
+    },
+    imagePreview: {
+        flex: 1,
+        resizeMode: 'contain',
     },
 });
