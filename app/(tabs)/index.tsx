@@ -151,6 +151,8 @@ export default function HomeScreen() {
 
         const picture = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
 
+        setFlash(false);
+
         setPicture({ 
             uri: picture.uri,
             base64: picture.base64!,

@@ -15,7 +15,7 @@ export default function FilteredScreen() {
         <IconSymbol
           size={310}
           color="#808080"
-          name="line.horizontal.3.decrease.circle"
+          name="slider.horizontal.3"
           style={styles.headerImage}
         />
       }>

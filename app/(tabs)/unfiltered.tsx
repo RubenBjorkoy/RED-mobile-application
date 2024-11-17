@@ -16,7 +16,7 @@ export default function UnfilteredScreen() {
         <IconSymbol
           size={310}
           color="#808080"
-          name="line.horizontal.3.decrease.circle.fill"
+          name="line.horizontal.3"
           style={styles.headerImage}
         />
       }>
