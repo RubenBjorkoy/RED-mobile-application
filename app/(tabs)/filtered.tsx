@@ -1,10 +1,11 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, View } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { tabBarHeight } from '@/constants/measures';
 
 export default function FilteredScreen() {
   return (
@@ -18,6 +19,7 @@ export default function FilteredScreen() {
           style={styles.headerImage}
         />
       }>
+      <View style={styles.container}>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
@@ -53,11 +55,15 @@ export default function FilteredScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+      </View>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+      marginBottom: tabBarHeight,
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',

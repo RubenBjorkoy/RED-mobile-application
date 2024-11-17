@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, TextInput, Button, Image, Platform, Alert, BackHandler } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, TextInput, Button, Image, Platform, Alert, BackHandler, SafeAreaView } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -11,6 +11,7 @@ import { PermissionResponse } from 'expo-media-library';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { PictureProps, ErrorProps } from '@/utils/types';
 import * as Location from 'expo-location';
+import { tabBarHeight } from '@/constants/measures';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -147,7 +148,7 @@ export default function HomeScreen() {
             shutterSound: false,
             exif: false,
         };
-        
+
         const picture = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
 
         setPicture({ 
@@ -315,7 +316,9 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
+        marginBottom: tabBarHeight,
+        padding: 0,
+    },  
     camera: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -325,7 +328,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingBottom: 20,
         paddingHorizontal: 20,
     },
     sideButton: {

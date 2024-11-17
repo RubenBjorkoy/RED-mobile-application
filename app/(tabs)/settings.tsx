@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import { tabBarHeight } from '@/constants/measures';
 
 interface User {
     image: string;
@@ -36,7 +37,7 @@ export default function SettingsScreen() {
     const PROFILE_PICTURE = require('@/assets/images/react-logo.png');
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.container}>
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
                 headerImage={
@@ -134,6 +135,12 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: tabBarHeight
+    },
     titleContainer: {
         flexDirection: 'row',
         gap: 8,

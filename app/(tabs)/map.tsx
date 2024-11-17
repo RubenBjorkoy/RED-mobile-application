@@ -5,6 +5,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useClusterer } from 'react-native-clusterer';
 import { LocationProps, MarkerProps } from '@/utils/types';
+import { tabBarHeight } from '@/constants/measures';
 
 export default function MapScreen() {
     const mapRef = React.useRef<MapView>(null);
@@ -101,6 +102,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: tabBarHeight,
     },
     map: {
         flex: 1,
