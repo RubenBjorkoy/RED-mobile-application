@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Platform, Alert, BackHandler } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, TextInput, Button, Image, Platform, Alert, BackHandler } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedProps } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import { vibrate } from '@/utils/vibrate';
 import * as MediaLibrary from 'expo-media-library';
 import { PermissionResponse } from 'expo-media-library';
-
-interface PictureProps {
-    uri: string;
-    orientation: number;
-}
+import DropDownPicker from 'react-native-dropdown-picker';
+import { PictureProps, ErrorProps } from '@/utils/types';
+import * as Location from 'expo-location';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -35,6 +33,52 @@ export default function HomeScreen() {
     const [picture, setPicture] = useState<PictureProps | null>(null);
     const [flash, setFlash] = useState<boolean>(false);
     const [downloaded, setDownloaded] = useState<boolean>(false);
+    const [formVisible, setFormVisible] = useState<boolean>(false);
+    const [error, setError] = useState<ErrorProps>({
+        title: '',
+        image: '',
+        system: '',
+        subsystem: '',
+        location: {
+            latitude: 0,
+            longitude: 0,
+        },
+        timestamp: 0,
+        resolved: false,
+        user: "Ruben Bjørkøy",
+    });
+    const [system, setSystem] = useState<string>('');
+    const [subsystem, setSubsystem] = useState<string>('');
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownItems, setDropdownItems] = useState([
+        { label: 'Electrical', value: 'electrical' },
+        { label: 'Mechanical', value: 'mechanical' },
+        { label: 'Software', value: 'software' },
+    ]);
+    const [subsystemDropdownOpen, setSubsystemDropdownOpen] = useState(false);
+    const [subsystemDropdownItems, setSubsystemDropdownItems] = useState([
+        { label: 'Wire Harness', value: 'wire-harness' },
+        { label: 'Motors', value: 'motors' },
+        { label: 'Telemetry', value: 'telemetry' },
+    ]);
+
+    useEffect(() => {
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if(status !== 'granted') {
+                Alert.alert('Permission to access location was denied');
+            } else {
+                const currentLocation = await Location.getCurrentPositionAsync({});
+                setError({
+                    ...error,
+                    location: {
+                        latitude: currentLocation.coords.latitude,
+                        longitude: currentLocation.coords.longitude,
+                    }
+                });
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         setPicture(null);
@@ -43,6 +87,21 @@ export default function HomeScreen() {
             setMediaLibraryPermissionGranted(granted);
         })();
     }, []);
+
+    useEffect(() => {
+        if (system) {
+            setError({
+                ...error,
+                system: system,
+            });
+        }
+        if (subsystem) {
+            setError({
+                ...error,
+                subsystem: subsystem,
+            });
+        }
+    }, [system, subsystem]);
 
     const backButtonHandler = () => {
         if (picture) {
@@ -70,11 +129,11 @@ export default function HomeScreen() {
     }
 
     const doubleTap = Gesture.Tap()
-    .numberOfTaps(2)
-    .onEnd(() => {
-        handleFlipCamera();
-    })
-    .runOnJS(true);
+        .numberOfTaps(2)
+        .onEnd(() => {
+            handleFlipCamera();
+        })
+        .runOnJS(true);
 
     const handleTakePicture = async () => {
         vibrate(30);
@@ -84,17 +143,50 @@ export default function HomeScreen() {
         setDownloaded(false);
         const options: CameraPictureOptions = {
             quality: 1,
-            base64: false,
+            base64: true,
             shutterSound: false,
-            exif: true,
+            exif: false,
         };
+        
         const picture = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
-        console.log(picture);
+
         setPicture({ 
-            uri: picture.uri, 
-            orientation: picture.exif.Orientation,
+            uri: picture.uri,
+            base64: picture.base64!,
         });
+        setError({
+            ...error,
+            image: picture.base64!,
+            timestamp: Date.now(),
+        })
+        setFormVisible(true);
     };
+
+    const handleFormSubmit = () => {
+        if(!error.title || !error.system || !error.subsystem) {
+            Alert.alert('Validation', 'Please fill out all fields');
+            console.log(error.title, error.system, error.subsystem);
+            return;
+        }
+
+        console.log(error.location, error.timestamp, error.resolved, error.user, error.title, error.system, error.subsystem);
+        Alert.alert('Success', 'Error reported');
+        setError({
+            title: '',
+            image: '',
+            system: '',
+            subsystem: '',
+            location: {
+                latitude: 0,
+                longitude: 0,
+            },
+            timestamp: 0,
+            resolved: false,
+            user: '',
+        });
+        setFormVisible(false);
+        setPicture(null);
+    }
 
     const saveToLibrary = async (uri: string) => {
         try {
@@ -124,55 +216,97 @@ export default function HomeScreen() {
 
     return (
         <GestureHandlerRootView>
-        <GestureDetector gesture={doubleTap}>
-        <View style={styles.container}>
-        {picture ? (
-            <Image
-                source={{ uri: picture.uri }}
-                style={styles.imagePreview}
-            />
-        ) : (
-            <CameraView 
-                style={styles.camera} 
-                facing={facing} 
-                mirror={facing === "front"} 
-                ref={cameraRef} 
-                enableTorch={flash} 
-                animateShutter={false}
-                ratio="4:3"
-            >
-            <View style={styles.controls}>
-                <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
-                    <IconSymbol name="camera.rotate.fill" size={32} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.shutterButton} onPress={handleTakePicture}/>
-                <TouchableOpacity style={styles.sideButton} onPress={handleFlash}>
-                    <MaterialIcons name={flash ? "flash-on" : "flash-off"} size={32} color="white" />
-                </TouchableOpacity>
-            </View>
-            </CameraView>
-        )}
-        {picture && (
-            <View style={styles.pictureOptions}>
-                <TouchableOpacity style={styles.retakeButtonContainer} onPress={handleRetakePicture}>
-                    <IconSymbol name="xmark" size={42} color="white" />
-                </TouchableOpacity>
-                {
-                    !downloaded ? (
-                        <TouchableOpacity style={styles.downloadButton} onPress={() => saveToLibrary(picture.uri)}>
-                            <IconSymbol name="arrow.down.circle" size={42} color="white" />
-                        </TouchableOpacity>
-                    ) : (
-                        <View style={styles.downloadButton}>
-                            <IconSymbol name="checkmark.circle" size={42} color="white" />
+            <GestureDetector gesture={doubleTap}>
+                <View style={styles.container}>
+                    {picture ? (
+                        <View style={styles.container}>
+                            <Image source={{ uri: picture.uri }} style={styles.imagePreview} />
+                            <View style={styles.pictureOptions}>
+                                <TouchableOpacity
+                                    style={styles.retakeButtonContainer}
+                                    onPress={handleRetakePicture}
+                                >
+                                    <IconSymbol name="xmark" size={42} color="white" />
+                                </TouchableOpacity>
+                                {mediaLibraryPermissionGranted && !downloaded ? (
+                                    <TouchableOpacity
+                                        style={styles.downloadButton}
+                                        onPress={() => saveToLibrary(picture.uri)}
+                                    >
+                                        <IconSymbol name="arrow.down.circle" size={42} color="white" />
+                                    </TouchableOpacity>
+                                ) : (
+                                    <View style={styles.downloadButton}>
+                                        <IconSymbol name="checkmark.circle" size={42} color="white" />
+                                    </View>
+                                )}
+                            </View>
+                            <View style={styles.formOverlay}>
+                                <Text style={styles.label}>Error Title:</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Describe the error"
+                                    placeholderTextColor={'#ccc'}
+                                    value={error.title}
+                                    onChangeText={(text) => setError({ ...error, title: text })}
+                                />
+                                <Text style={styles.label}>System:</Text>
+                                <DropDownPicker
+                                    style={{ zIndex: 1000 }}
+                                    open={dropdownOpen}
+                                    value={system}
+                                    items={dropdownItems}
+                                    setOpen={setDropdownOpen}
+                                    setValue={setSystem}
+                                    setItems={setDropdownItems}
+                                />
+                                <Text style={styles.label}>Subsystem:</Text>
+                                <DropDownPicker
+                                    open={subsystemDropdownOpen}
+                                    value={subsystem}
+                                    items={subsystemDropdownItems}
+                                    setOpen={setSubsystemDropdownOpen}
+                                    setValue={setSubsystem}
+                                    setItems={setSubsystemDropdownItems}
+                                />
+                                <TouchableOpacity
+                                    style={styles.submitButton}
+                                    onPress={handleFormSubmit}
+                                >
+                                    <Text style={styles.submitButtonText}>Submit</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    )
-                }
-                
-            </View>
-        )}
-        </View>
-        </GestureDetector>
+                    ) : (
+                        <CameraView
+                            style={styles.camera}
+                            facing={facing}
+                            mirror={true}
+                            ref={cameraRef}
+                            enableTorch={flash}
+                            animateShutter={false}
+                            ratio="4:3"
+                        >
+                            <View style={styles.controls}>
+                                <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
+                                    <IconSymbol name="camera.rotate.fill" size={32} color="white" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.shutterButton}
+                                    onPress={handleTakePicture}
+                                />
+                                <TouchableOpacity style={styles.sideButton} onPress={handleFlash}>
+                                    <MaterialIcons
+                                        name={flash ? 'flash-on' : 'flash-off'}
+                                        size={32}
+                                        color="white"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </CameraView>
+                    )}
+                </View>
+            </GestureDetector>
         </GestureHandlerRootView>
     );
 }
@@ -239,5 +373,54 @@ const styles = StyleSheet.create({
     imagePreview: {
         flex: 1,
         resizeMode: 'contain',
+    },
+    formOverlay: {
+        position: 'absolute',
+        top: '20%', // Centers the form vertically
+        left: '10%', // Adds space from the left side
+        right: '10%', // Adds space from the right side
+        padding: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)', // Semi-transparent dark background
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
+        elevation: 10, // Adds a shadow effect for Android
+        zIndex: 100, // Ensures the form stays above other components
+    },
+    form: {
+        position: 'absolute',
+        top: 50,
+        padding: 20,
+        backgroundColor: 'white',
+        width: '90%',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 8,
+        color: 'white',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 16,
+        color: 'white',
+    },
+    submitButton: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    submitButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 });

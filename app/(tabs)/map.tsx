@@ -4,21 +4,11 @@ import * as Location from 'expo-location';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useClusterer } from 'react-native-clusterer';
-
-interface Location {
-    latitude: number;
-    longitude: number;
-}
-
-interface MarkerProps {
-    coordinate: Location;
-    title: string;
-    description: string;
-}
+import { LocationProps, MarkerProps } from '@/utils/types';
 
 export default function MapScreen() {
     const mapRef = React.useRef<MapView>(null);
-    const [location, setLocation] = React.useState<Location>({
+    const [location, setLocation] = React.useState<LocationProps>({
         latitude: 63.40896602358958,
         longitude: 10.40693731524378,
     });
