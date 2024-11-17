@@ -21,7 +21,7 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+            // position: 'absolute',
           },
           default: {},
         }),
@@ -38,7 +38,7 @@ export default function TabLayout() {
         name="filtered"
         options={{
           title: 'Your Errors',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3.decrease.circle" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="slider.horizontal.3" color={color} />,
         }}
       />
       <Tabs.Screen 
@@ -52,7 +52,7 @@ export default function TabLayout() {
         name="unfiltered"
         options={{
           title: 'All Errors',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3.decrease.circle.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3" color={color} />,
         }}
       />
       <Tabs.Screen

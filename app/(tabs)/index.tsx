@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Vibration, Platform, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Platform, Alert, BackHandler } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -14,23 +14,47 @@ interface PictureProps {
     orientation: number;
 }
 
+function useBackButton(handler: () => void) {
+    useEffect(() => {
+        const listener = () => {
+            handler();
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', listener);
+
+        return () => backHandler.remove();
+    }, [handler]);
+}
+
 export default function HomeScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
     const [mediaLibraryPermissionGranted, setMediaLibraryPermissionGranted] = useState<boolean>(false);
+    const cameraRef = useRef<CameraView>(null);
+    const [picture, setPicture] = useState<PictureProps | null>(null);
+    const [flash, setFlash] = useState<boolean>(false);
+    const [downloaded, setDownloaded] = useState<boolean>(false);
 
     useEffect(() => {
+        setPicture(null);
         (async () => {
             const { granted } = await MediaLibrary.requestPermissionsAsync();
             setMediaLibraryPermissionGranted(granted);
         })();
     }, []);
 
-    const cameraRef = useRef<CameraView>(null);
-    const [picture, setPicture] = useState<PictureProps | null>(null);
-    const [flash, setFlash] = useState<boolean>(false);
-    const [downloaded, setDownloaded] = useState<boolean>(false);
+    const backButtonHandler = () => {
+        if (picture) {
+            handleRetakePicture();
+            return true;
+        }
+        return false;
+    };
 
+    useBackButton(backButtonHandler);
+
+    //! Important! Make sure these come later than any hooks
     if (!permission) {
         //This means that the permissions aren't loaded yet
         return <View />;
@@ -82,21 +106,6 @@ export default function HomeScreen() {
             console.error(error);
         }
     }
-
-    // const getImageRotation = (orientation: number): string => {
-    //     switch (orientation) {
-    //         case 1: // Rotated left
-    //             return '90deg';
-    //         case 3: // Rotated right
-    //             return '-90deg';
-    //         case 6: // Upright Portrait
-    //             return '0deg';
-    //         case 8: // Rotated left
-    //             return '180deg';
-    //         default: // Normal
-    //             return '0deg';
-    //     }
-    // };
 
     const handleRetakePicture = () => {
         vibrate(15);
@@ -182,7 +191,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingBottom: Platform.OS === "ios" ? 140 : 20, // iOS navbar height isn't calculated correctly
+        paddingBottom: 20,
         paddingHorizontal: 20,
     },
     sideButton: {
