@@ -15,10 +15,13 @@ const MAPPING = {
   'camera.rotate.fill': 'flip-camera-ios',
   'bolt.fill': 'flash-on',
   'bolt.slash.fill': 'flash-off',
-  'line.horizontal.3.decrease.circle': 'filter-list',
-  'line.horizontal.3.decrease.circle.fill': 'filter-list-off',
+  'line.horizontal.3.decrease.circle': 'filter-list', //TODO: Find better icons
+  'line.horizontal.3.decrease.circle.fill': 'filter-list-off', //TODO: Find better icons
   'map.fill': 'map',
   'gear.circle.fill': 'settings',
+  'location.fill': 'my-location',
+  'pin.fill': 'person-pin-circle',
+  'xmark': 'close',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
 } as Partial<

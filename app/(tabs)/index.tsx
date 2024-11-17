@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture, FlashMode } from 'expo-camera';
+import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Button, Image, Vibration, Platform } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedProps } from 'react-native-reanimated';
+import { vibrate } from '@/utils/vibrate';
+
+interface PictureProps {
+    uri: string;
+    orientation: number;
+}
 
 export default function HomeScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
-    const [picture, setPicture] = useState<string | null>(null);
+    const [picture, setPicture] = useState<PictureProps | null>(null);
     const [flash, setFlash] = useState<boolean>(false);
 
     if (!permission) {
@@ -35,6 +41,7 @@ export default function HomeScreen() {
     .runOnJS(true);
 
     const handleTakePicture = async () => {
+        vibrate(30);
         if (!cameraRef.current) {
             return;
         }
@@ -42,21 +49,43 @@ export default function HomeScreen() {
             quality: 1,
             base64: false,
             shutterSound: false,
-            mirror: facing === 'front',
+            exif: true,
         };
-        const { uri } = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
-        setPicture(uri);
+        const picture = await cameraRef.current.takePictureAsync(options) as CameraCapturedPicture;
+        console.log(picture);
+        setPicture({ 
+            uri: picture.uri, 
+            orientation: picture.exif.Orientation,
+        });
+    };
+
+    const getImageRotation = (orientation: number): string => {
+        switch (orientation) {
+            case 1: // Rotated left
+                return '90deg';
+            case 3: // Rotated right
+                return '-90deg';
+            case 6: // Upright Portrait
+                return '0deg';
+            case 8: // Rotated left
+                return '180deg';
+            default: // Normal
+                return '0deg';
+        }
     };
 
     const handleRetakePicture = () => {
+        vibrate(15);
         setPicture(null);
     };
 
     const handleFlipCamera = () => {
+        vibrate(15);
         setFacing(facing === 'back' ? 'front' : 'back');
     };
 
     const handleFlash = () => {
+        vibrate(15);
         setFlash(!flash);
     };
 
@@ -65,26 +94,39 @@ export default function HomeScreen() {
         <GestureDetector gesture={doubleTap}>
         <View style={styles.container}>
         {picture ? (
-            <Image source={{ uri: picture }} style={styles.camera} />
+            <Image
+                source={{ uri: picture.uri }}
+                style={[
+                    styles.camera,
+                    { transform: [{ rotate: getImageRotation(picture.orientation) }] },
+                ]}
+            />
         ) : (
-            <CameraView style={styles.camera} facing={facing} mirror={true} ref={cameraRef} enableTorch={flash}>
+            <CameraView 
+                style={styles.camera} 
+                facing={facing} 
+                mirror={facing === "front"} 
+                ref={cameraRef} 
+                enableTorch={flash} 
+                animateShutter={false}
+                // pictureSize='176x144'
+                // ratio="fill"
+            >
             <View style={styles.controls}>
-                <TouchableOpacity style={styles.flipButton} onPress={handleFlipCamera}>
+                <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
                     <IconSymbol name="camera.rotate.fill" size={32} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.shutterButton} onPress={handleTakePicture} >
-                    <IconSymbol name="camera.fill" size={75} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.galleryButton} onPress={handleFlash}>
+                <TouchableOpacity style={styles.shutterButton} onPress={handleTakePicture}/>
+                <TouchableOpacity style={styles.sideButton} onPress={handleFlash}>
                     <MaterialIcons name={flash ? "flash-on" : "flash-off"} size={32} color="white" />
                 </TouchableOpacity>
             </View>
             </CameraView>
         )}
         {picture && (
-            <View style={styles.retakeButtonContainer}>
-            <Button title="Retake" onPress={handleRetakePicture} />
-            </View>
+                <TouchableOpacity style={styles.retakeButtonContainer} onPress={handleRetakePicture}>
+                    <IconSymbol name="xmark" size={42} color="white" />
+                </TouchableOpacity>
         )}
         </View>
         </GestureDetector>
@@ -105,10 +147,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingBottom: 20,
+        paddingBottom: Platform.OS === "ios" ? 140 : 20, // iOS navbar height isn't calculated correctly
         paddingHorizontal: 20,
     },
-    flipButton: {
+    sideButton: {
         alignItems: 'center',
         justifyContent: 'center',
         width: 60,
@@ -123,12 +165,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         alignSelf: 'center',
     },
-    galleryButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 60,
-        height: 60,
-    },
     message: {
         fontSize: 20,
         textAlign: 'center',
@@ -136,7 +172,22 @@ const styles = StyleSheet.create({
     },
     retakeButtonContainer: {
       position: 'absolute',
-      bottom: 20,
-      alignSelf: 'center',
+      top: 40,
+      left: 20,
+    },
+    button: {
+        padding: 10,
+    },
+    retakeButton: {
+        position: 'absolute',
+        bottom: 40,
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        borderRadius: 5,
+        padding: 10,
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'black',
     },
 });
