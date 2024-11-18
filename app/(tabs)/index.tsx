@@ -5,7 +5,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
-import { vibrate } from '@/utils/vibrate';
+import Vibrate from '@/utils/vibrate';
 import * as MediaLibrary from 'expo-media-library';
 import { PermissionResponse } from 'expo-media-library';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -137,7 +137,6 @@ export default function HomeScreen() {
         .runOnJS(true);
 
     const handleTakePicture = async () => {
-        vibrate(30);
         if (!cameraRef.current) {
             return;
         }
@@ -166,19 +165,20 @@ export default function HomeScreen() {
     };
 
     const handleFormSubmit = () => {
-        if(!error.title || !error.system || !error.subsystem) {
+        if(!error.title || !system || !subsystem) {
             Alert.alert('Validation', 'Please fill out all fields');
             console.log(error.title, error.system, error.subsystem);
             return;
         }
 
-        console.log(error.location, error.timestamp, error.resolved, error.user, error.title, error.system, error.subsystem);
+        console.log(error.location, error.timestamp, error.resolved, error.user, error.title, system, subsystem);
+        // console.log(error.image);
         Alert.alert('Success', 'Error reported');
         setError({
             title: '',
             image: '',
-            system: '',
-            subsystem: '',
+            system: error.system,
+            subsystem: error.subsystem,
             location: {
                 latitude: 0,
                 longitude: 0,
@@ -203,19 +203,24 @@ export default function HomeScreen() {
     }
 
     const handleRetakePicture = () => {
-        vibrate(15);
+        Vibrate.rigid();
+        setFormVisible(false);
         setPicture(null);
     };
 
     const handleFlipCamera = () => {
-        vibrate(15);
+        Vibrate.light();
         setFacing(facing === 'back' ? 'front' : 'back');
     };
 
     const handleFlash = () => {
-        vibrate(15);
         setFlash(!flash);
     };
+
+    const handleFormVisible = () => {
+        Vibrate.light();
+        setFormVisible(!formVisible);
+    }
 
     return (
         <GestureHandlerRootView>
@@ -231,7 +236,7 @@ export default function HomeScreen() {
                                 >
                                     <IconSymbol name="xmark" size={42} color="white" />
                                 </TouchableOpacity>
-                                {mediaLibraryPermissionGranted && !downloaded ? (
+                                {mediaLibraryPermissionGranted ? !downloaded ? (
                                     <TouchableOpacity
                                         style={styles.downloadButton}
                                         onPress={() => saveToLibrary(picture.uri)}
@@ -242,42 +247,7 @@ export default function HomeScreen() {
                                     <View style={styles.downloadButton}>
                                         <IconSymbol name="checkmark.circle" size={42} color="white" />
                                     </View>
-                                )}
-                            </View>
-                            <View style={styles.formOverlay}>
-                                <Text style={styles.label}>Error Title:</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Describe the error"
-                                    placeholderTextColor={'#ccc'}
-                                    value={error.title}
-                                    onChangeText={(text) => setError({ ...error, title: text })}
-                                />
-                                <Text style={styles.label}>System:</Text>
-                                <DropDownPicker
-                                    style={{ zIndex: 1000 }}
-                                    open={dropdownOpen}
-                                    value={system}
-                                    items={dropdownItems}
-                                    setOpen={setDropdownOpen}
-                                    setValue={setSystem}
-                                    setItems={setDropdownItems}
-                                />
-                                <Text style={styles.label}>Subsystem:</Text>
-                                <DropDownPicker
-                                    open={subsystemDropdownOpen}
-                                    value={subsystem}
-                                    items={subsystemDropdownItems}
-                                    setOpen={setSubsystemDropdownOpen}
-                                    setValue={setSubsystem}
-                                    setItems={setSubsystemDropdownItems}
-                                />
-                                <TouchableOpacity
-                                    style={styles.submitButton}
-                                    onPress={handleFormSubmit}
-                                >
-                                    <Text style={styles.submitButtonText}>Submit</Text>
-                                </TouchableOpacity>
+                                ) : null}
                             </View>
                         </View>
                     ) : (
@@ -290,6 +260,11 @@ export default function HomeScreen() {
                             animateShutter={false}
                             ratio="4:3"
                         >
+                            <View style={styles.secondaryControls}>
+                                <TouchableOpacity style={styles.sideButton} onPress={handleFormVisible}>
+                                    <Text style={{color: "white"}}>Open forms</Text>
+                                </TouchableOpacity>
+                            </View>
                             <View style={styles.controls}>
                                 <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
                                     <IconSymbol name="camera.rotate.fill" size={32} color="white" />
@@ -307,6 +282,44 @@ export default function HomeScreen() {
                                 </TouchableOpacity>
                             </View>
                         </CameraView>
+                    )}
+                    {formVisible && (
+                        
+                        <View style={styles.formOverlay}>
+                        <Text style={styles.label}>Error Title:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Describe the error"
+                            placeholderTextColor={'#ccc'}
+                            value={error.title}
+                            onChangeText={(text) => setError({ ...error, title: text })}
+                        />
+                        <Text style={styles.label}>System:</Text>
+                        <DropDownPicker
+                            style={{ zIndex: 1000 }}
+                            open={dropdownOpen}
+                            value={system}
+                            items={dropdownItems}
+                            setOpen={setDropdownOpen}
+                            setValue={setSystem}
+                            setItems={setDropdownItems}
+                        />
+                        <Text style={styles.label}>Subsystem:</Text>
+                        <DropDownPicker
+                            open={subsystemDropdownOpen}
+                            value={subsystem}
+                            items={subsystemDropdownItems}
+                            setOpen={setSubsystemDropdownOpen}
+                            setValue={setSubsystem}
+                            setItems={setSubsystemDropdownItems}
+                        />
+                        <TouchableOpacity
+                            style={styles.submitButton}
+                            onPress={handleFormSubmit}
+                        >
+                            <Text style={styles.submitButtonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
                     )}
                 </View>
             </GestureDetector>
@@ -327,6 +340,12 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     controls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+    },
+    secondaryControls: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',

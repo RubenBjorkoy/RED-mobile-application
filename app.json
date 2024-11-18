@@ -45,6 +45,7 @@
         "expo-media-library",
         {
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
           "isAccessMediaLocationEnabled": true
         }
       ],
