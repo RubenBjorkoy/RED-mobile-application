@@ -1,6 +1,6 @@
 import { StyleSheet, Image, Text, TouchableOpacity, Button, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -10,6 +10,9 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { tabBarHeight } from '@/constants/Measures';
+import i18next from 'i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TabRefreshContext } from '@/utils/TabRefreshContext';
 
 interface User {
     image: string;
@@ -21,18 +24,30 @@ interface User {
 }
 
 export default function SettingsScreen() {
+    const { refreshTabs } = useContext(TabRefreshContext);
     const [user, setUser] = useState<User>({
         image: '',
         name: '',
         role: '',
         group: 'dataengineering',
         theme: 'dark',
-        language: 'en',
+        language: i18next.language,
     });
 
     useEffect(() => {
         console.log(user);
+        changeLanguage(user.language);
     }, [user]);
+
+    const changeLanguage = async (newLocale: string) => {
+        i18next.changeLanguage(newLocale);
+        await AsyncStorage.setItem('userLanguage', newLocale);
+    }
+
+    const apply = () => {
+        console.log('Apply pressed');
+        refreshTabs();
+    }
 
     const PROFILE_PICTURE = require('@/assets/images/react-logo.png');
 
@@ -50,10 +65,10 @@ export default function SettingsScreen() {
             }>
                 <View style={styles.container}>
                     <ThemedView style={styles.titleContainer}>
-                        <ThemedText type="title">Settings</ThemedText>
+                        <ThemedText type="title">{i18next.t("settings")}</ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Profile Picture</ThemedText>
+                        <ThemedText>{i18next.t("profilePicture")}</ThemedText>
                         <TouchableOpacity
                             onPress={() => console.log('Profile Picture pressed')}
                             style={{ width: '100%' }}
@@ -65,17 +80,17 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Username</ThemedText>
+                        <ThemedText>{i18next.t("username")}</ThemedText>
                             <TextInput 
                                 style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
-                                placeholder="Username"
+                                placeholder={i18next.t("username")}
                                 placeholderTextColor={'gray'}
                                 value={user.name}
                                 onChange={(e) => setUser({ ...user, name: e.nativeEvent.text })}
                             />
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Group</ThemedText>
+                        <ThemedText>{i18next.t("group")}</ThemedText>
                             <Picker
                                 style={{ width: '100%', color: 'white' }}
                                 onValueChange={(itemValue: string) => setUser({ ...user, group: itemValue })}
@@ -95,40 +110,40 @@ export default function SettingsScreen() {
                             </Picker>
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Role</ThemedText>
+                        <ThemedText>{i18next.t("role")}</ThemedText>
                             <TextInput
                                 style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white' }}
-                                placeholder="Role"
+                                placeholder={i18next.t("role")}
                                 placeholderTextColor={'gray'}
                                 value={user.role}
                                 onChange={(e) => setUser({ ...user, role: e.nativeEvent.text })}
                             />
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Theme</ThemedText>
+                        <ThemedText>{i18next.t("theme")}</ThemedText>
                             <Picker
                                 style={{ width: '100%', color: 'white' }}
                                 onValueChange={(itemValue: string) => setUser({ ...user, theme: itemValue })}
                                 selectedValue={user.theme}
                             >
-                                <Picker.Item label="Dark" value="dark" />
-                                <Picker.Item label="Light" value="light" />
+                                <Picker.Item label={i18next.t("dark")} value="dark" />
+                                <Picker.Item label={i18next.t("light")} value="light" />
                             </Picker>
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <ThemedText>Language</ThemedText>
+                        <ThemedText>{i18next.t("language")}</ThemedText>
                             <Picker
                                 style={{ width: '100%', color: 'white' }}
                                 onValueChange={(itemValue: string) => setUser({ ...user, language: itemValue })}
                                 selectedValue={user.language}
                             >
-                                <Picker.Item label="English" value="en" />
-                                <Picker.Item label="Norwegian" value="no" />
+                                <Picker.Item label={i18next.t("english")} value="en" />
+                                <Picker.Item label={i18next.t("norwegian")} value="no" />
                             </Picker>
                     </ThemedView>
                     <ThemedView style={styles.inputContainer}>
-                        <Button title="Cancel" color="#cc0000" onPress={() => console.log('Cancel pressed')} />
-                        <Button title="Apply" color="#00bb00" onPress={() => console.log('Save pressed')} />
+                        <Button title={i18next.t("cancel")} color="#cc0000" onPress={() => console.log('Cancel pressed')} />
+                        <Button title={i18next.t("apply")} color="#00bb00" onPress={apply} />
                     </ThemedView>
                 </View>
             </ParallaxScrollView>

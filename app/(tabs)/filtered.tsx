@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { tabBarHeight } from '@/constants/Measures';
+import i18next from '@/utils/localizations';
 
 export default function FilteredScreen() {
   return (
@@ -21,7 +22,7 @@ export default function FilteredScreen() {
       }>
       <View style={styles.container}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">{i18next.t("welcome")}</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
