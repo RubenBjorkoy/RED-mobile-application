@@ -3,7 +3,7 @@ import { Image, StyleSheet, Platform, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { tabBarHeight } from '@/constants/Measures';
+import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import i18next from '@/utils/localizations';
 
 export default function FilteredScreen() {
@@ -50,6 +50,7 @@ export default function FilteredScreen() {
 const styles = StyleSheet.create({
   container: {
       marginBottom: tabBarHeight,
+      paddingTop: topBarPadding,
   },
   titleContainer: {
     flexDirection: 'row',

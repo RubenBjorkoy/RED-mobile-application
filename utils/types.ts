@@ -6,7 +6,6 @@ export interface LocationProps {
 export interface MarkerProps {
     coordinate: LocationProps;
     title: string;
-    description: string;
 }
 
 export interface ErrorProps {
@@ -23,4 +22,9 @@ export interface ErrorProps {
 export interface PictureProps {
     uri: string;
     base64: string;
+}
+
+export interface ImageProps {
+    id: number;
+    image: string;
 }

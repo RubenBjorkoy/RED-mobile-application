@@ -6,7 +6,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
-import { tabBarHeight } from '@/constants/Measures';
+import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import i18next from 'i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TabRefreshContext } from '@/utils/TabRefreshContext';
@@ -139,7 +139,8 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: tabBarHeight
+        marginBottom: tabBarHeight,
+        paddingTop: topBarPadding,
     },
     titleContainer: {
         flexDirection: 'row',

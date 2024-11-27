@@ -11,7 +11,7 @@ import { PermissionResponse } from 'expo-media-library';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { PictureProps, ErrorProps } from '@/utils/types';
 import * as Location from 'expo-location';
-import { tabBarHeight } from '@/constants/Measures';
+import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -112,6 +112,38 @@ export default function HomeScreen() {
         return false;
     };
 
+    const uploadData = async (data: ErrorProps) => {
+        const errorData = {
+            title: data.title,
+            system: data.system,
+            subsystem: data.subsystem,
+            location: data.location,
+            timestamp: data.timestamp,
+            resolved: data.resolved,
+            user: data.user,
+            image: null,
+        };
+        const imageData = {
+            image: data.image,
+        };
+        const imageResponse = await fetch('https://280a-129-241-236-172.ngrok-free.app/images', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(imageData),
+        });
+        const uploadedImage = await imageResponse.json();
+        errorData.image = uploadedImage.id;
+        await fetch('https://280a-129-241-236-172.ngrok-free.app/errors', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(errorData),
+        });
+    };
+
     useBackButton(backButtonHandler);
 
     //! Important! Make sure these come later than any hooks
@@ -173,6 +205,7 @@ export default function HomeScreen() {
 
         console.log(error.location, error.timestamp, error.resolved, error.user, error.title, system, subsystem);
         // console.log(error.image);
+        uploadData(error);
         Alert.alert('Success', 'Error reported');
         setError({
             title: '',
@@ -332,6 +365,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginBottom: tabBarHeight,
+        paddingTop: topBarPadding,
         padding: 0,
     },  
     camera: {
