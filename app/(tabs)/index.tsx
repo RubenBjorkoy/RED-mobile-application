@@ -12,6 +12,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { PictureProps, ErrorProps } from '@/utils/types';
 import * as Location from 'expo-location';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
+import apiUrl from '@/utils/apiUrls';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -126,7 +127,7 @@ export default function HomeScreen() {
         const imageData = {
             image: data.image,
         };
-        const imageResponse = await fetch('https://280a-129-241-236-172.ngrok-free.app/images', {
+        const imageResponse = await fetch(`${apiUrl}/images`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ export default function HomeScreen() {
         });
         const uploadedImage = await imageResponse.json();
         errorData.image = uploadedImage.id;
-        await fetch('https://280a-129-241-236-172.ngrok-free.app/errors', {
+        await fetch(`${apiUrl}/errors`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput, Text } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 export default function FilterBar({ onFilterChange }: { onFilterChange: (filter: { search: string, system: string, subsystem: string }) => void }) {
     const [search, setSearch] = React.useState<string>('');
@@ -13,14 +15,27 @@ export default function FilterBar({ onFilterChange }: { onFilterChange: (filter:
 
     return (
         <View>
-            <ThemedText>Filter Bar</ThemedText>
-            <TextInput
-                placeholder="Search"
-                placeholderTextColor={'#aaaaaa'}
-                style={styles.input}
-                value={search}
-                onChangeText={setSearch}
-            />
+            <ThemedView>
+                <ThemedText>Filter Bar</ThemedText>
+                <TextInput
+                    placeholder="Search"
+                    placeholderTextColor={'#aaaaaa'}
+                    style={styles.input}
+                    value={search}
+                    onChangeText={setSearch}
+                />
+            </ThemedView>
+            {/* <ThemedView>
+                <Text style={styles.label}>Subsystem:</Text>
+                <DropDownPicker
+                    open={subsystemDropdownOpen}
+                    value={subsystem}
+                    items={subsystemDropdownItems}
+                    setOpen={setSubsystemDropdownOpen}
+                    setValue={setSubsystem}
+                    setItems={setSubsystemDropdownItems}
+                />
+            </ThemedView> */}
         </View>
     );
 }

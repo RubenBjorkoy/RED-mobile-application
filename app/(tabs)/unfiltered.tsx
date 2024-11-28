@@ -55,7 +55,7 @@ export default function UnfilteredScreen() {
   return (
     <SafeAreaView>
       <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -81,11 +81,15 @@ export default function UnfilteredScreen() {
 
 const styles = StyleSheet.create({
   container: {
-      marginBottom: tabBarHeight,
-      paddingTop: topBarPadding,
-      height: '100%',
-      flexGrow: 1,
-      backgroundColor: '#171717',
+    marginBottom: tabBarHeight,
+    paddingTop: topBarPadding,
+    height: '100%',
+    flexGrow: 1,
+    backgroundColor: '#171717',
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: tabBarHeight * 2,
   },
   headerImage: {
     color: '#808080',
