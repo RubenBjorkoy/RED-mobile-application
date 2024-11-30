@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-reanimated';
 import * as Localization from 'expo-localization'
 import i18next from '@/utils/localizations';
+import LoginScreen from './login';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -18,30 +19,28 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [locale, setLocale] = useState(Localization.getLocales()[0].languageCode);
   const colorScheme = useColorScheme();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
-    const loadLanguagePreference = async () => {
+    const loadAppState = async () => {
+      const userToken = await AsyncStorage.getItem('userToken');
+      setIsLoggedIn(!!userToken);
+
       const savedLocale = await AsyncStorage.getItem('userLanguage');
-      const intialLocale: string = savedLocale || Localization.getLocales()[0].languageCode || "n"; //Defaults to English if savedLocale is null and for some reason the device locale is not available
-      setLocale(intialLocale);
-      i18next.changeLanguage(intialLocale);
-    }
+      const initialLocale = savedLocale || Localization.getLocales()[0].languageCode || "en";
+      setLocale(initialLocale);
+      i18next.changeLanguage(initialLocale);
 
-    loadLanguagePreference();
+      if (loaded) {
+        SplashScreen.hideAsync();
+      }
+    };
 
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    loadAppState();
   }, [loaded]);
-
-  const changeLanguage = async (newLocale: string) => {
-    setLocale(newLocale);
-    i18next.changeLanguage(newLocale);
-    await AsyncStorage.setItem('userLanguage', newLocale);
-  }
 
   if (!loaded) {
     return null;
@@ -50,8 +49,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="+not-found" options={{ headerShown: false }}  />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

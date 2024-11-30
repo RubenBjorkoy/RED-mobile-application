@@ -1,5 +1,5 @@
 // import { Tabs } from 'expo-router';
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, createContext, useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { TabRefreshContext } from '@/utils/TabRefreshContext';
@@ -12,21 +12,35 @@ import HomeScreen from '.';
 import UnfilteredScreen from './unfiltered';
 import SettingsScreen from './settings';
 import { tabBarHeight } from '@/constants/Measures';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [tabKey, setTabKey] = useState(0);
+  const { navigate } = useNavigation<any>();
 
   const refreshTabs = () => {
     setTabKey((prev) => prev + 1);
   }
 
+  useEffect(() => {
+    const fetchUserToken = async () => {
+      const userToken = await AsyncStorage.getItem('userToken');
+      if (!userToken) {
+        navigate('login');
+      }
+    }
+    fetchUserToken();
+  }, []);
+
   return (
     <TabRefreshContext.Provider value={{ refreshTabs }}>
       <Tab.Navigator
         key={tabKey}
+        initialRouteName='index'
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].text,
@@ -35,20 +49,21 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             backgroundColor: Colors[colorScheme ?? 'light'].background,
-            position: 'absolute', // Make the tab bar float
-            bottom: 0,            // Position it at the bottom
+            position: 'absolute',
+            bottom: 0,
             left: 0,
             right: 0,
             height: tabBarHeight,
-            elevation: Platform.OS === 'android' ? 5 : 0, // Add shadow on Android
+            elevation: Platform.OS === 'android' ? 5 : 0,
           },
-          tabBarShowLabel: false, // Hide labels
-          swipeEnabled: true, // Enable swipe gestures
+          tabBarShowLabel: false,
+          swipeEnabled: true,
         }}
       >
         <Tab.Screen
           name="map"
           options={{
+            tabBarShowLabel: false,
             title: 'Map',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
           }}

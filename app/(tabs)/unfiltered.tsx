@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Image, Platform, View, ScrollView, RefreshControl, SafeAreaView } from 'react-native';
+import { StyleSheet, Image, Platform, View, ScrollView, RefreshControl, SafeAreaView, TouchableOpacity } from 'react-native';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -11,6 +11,8 @@ import { ErrorProps } from '@/utils/types';
 import ErrorCard from '@/components/cards/errorCard';
 import FilterBar from '@/components/FilterBar';
 import apiUrl from '@/utils/apiUrls';
+import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 interface Filter {
   system?: string;
@@ -22,6 +24,8 @@ export default function UnfilteredScreen() {
   const [errors, setErrors] = React.useState<ErrorProps[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
   const [filter, setFilter] = React.useState<Filter>({});
+  const navigation = useNavigation<any>();
+  const router = useRouter();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -48,8 +52,12 @@ export default function UnfilteredScreen() {
   }
 
   const handleFilterChange = (filter: Filter) => {
-    console.log('Filter changed', filter);
     setFilter(filter);
+  }
+
+  const handleRedirect = (errorId: string) => {
+    console.log('Redirecting to error', errorId);
+    router.push(`/errors/${errorId}` as const);
   }
 
   return (
@@ -68,9 +76,13 @@ export default function UnfilteredScreen() {
           {
             errors.map((error, index) => {
               if(!error.title.toLowerCase().includes(filter.search?.toLowerCase() || '')) return null;
-              if(filter.system && error.system !== filter.system) return null;
-              if(filter.subsystem && error.subsystem !== filter.subsystem) return null;
-              return <ErrorCard key={index} {...error} />
+              if(filter.system && error.system.toLowerCase() !== filter.system.toLowerCase()) return null;
+              if(filter.subsystem && error.subsystem.toLowerCase() !== filter.subsystem.toLowerCase()) return null;
+              return (
+                <TouchableOpacity key={index} onPress={() => {handleRedirect(error.id!)}}>
+                  <ErrorCard key={index} {...error} />
+                </TouchableOpacity>
+              )
             })
           }
         </ThemedView>

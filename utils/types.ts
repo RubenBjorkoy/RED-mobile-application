@@ -9,6 +9,7 @@ export interface MarkerProps {
 }
 
 export interface ErrorProps {
+    id?: string;
     title: string;
     image: string;
     system: string;
@@ -19,7 +20,7 @@ export interface ErrorProps {
     user: string;
 }
 
-export interface PictureProps {
+export interface PictureProps { //Used for storing the images in the json file
     uri: string;
     base64: string;
 }
@@ -27,4 +28,21 @@ export interface PictureProps {
 export interface ImageProps {
     id: number;
     image: string;
+}
+
+export interface User {
+    id?: string;
+    username: string;
+    password: string;
+    group: string;
+    role: string;
+    language: string;
+}
+
+export interface CommentProps {
+    id: string;
+    errorId: string;
+    user: string;
+    comment: string;
+    timestamp: number;
 }

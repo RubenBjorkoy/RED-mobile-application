@@ -5,17 +5,27 @@ import { ErrorProps, ImageProps } from '@/utils/types';
 import { tabBarHeight } from '@/constants/Measures';
 import Vibrate from '@/utils/vibrate';
 import apiUrl from '@/utils/apiUrls';
+import i18next from 'i18next';
+import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import { ThemedView } from '../ThemedView';
 
 export default function ErrorCard(error: ErrorProps) {
     const [expanded, setExpanded] = React.useState(false);
     const [image, setImage] = React.useState<ImageProps | null>(null);
+    const navigation = useNavigation<any>();
+    const router = useRouter();
 
     const onPress = () => {
         Vibrate.light();
-        setExpanded(!expanded);
-        if(!image) {
-            fetchImage();
-        }
+        // setExpanded(!expanded);
+        // if(!image) {
+        //     fetchImage();
+        // }
+        // navigation.navigate(`${error.id}`);
+        // if (error.id) {
+        //     router.push(`/(tabs)/errors/[${error.id}]`);
+        // }
     }
 
     const fetchImage = async () => {
@@ -29,26 +39,26 @@ export default function ErrorCard(error: ErrorProps) {
     }
 
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress}>
+        <ThemedView style={styles.container}>
             <ThemedText style={styles.setColorDark} type="subtitle">{error.title}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.system}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.subsystem}</ThemedText>
             {
-                expanded && (
-                    <>
-                        <ThemedText style={styles.setColorDark}>{error.location.latitude}</ThemedText>
-                        {
-                            image && (
-                                <Image
-                                    source={{ uri: `data:image/jpeg;base64,${image.image}` }}
-                                    style={styles.image}
-                                />
-                            )
-                        }
-                    </>
-                )
+                // expanded && (
+                //     <>
+                //         <ThemedText style={styles.setColorDark}>{i18next.t('user')}: {error.user}</ThemedText>
+                //         {
+                //             image && (
+                //                 <Image
+                //                     source={{ uri: `data:image/jpeg;base64,${image.image}` }}
+                //                     style={styles.image}
+                //                 />
+                //             )
+                //         }
+                //     </>
+                // )
             }
-        </TouchableOpacity>
+        </ThemedView>
     );
 }
 

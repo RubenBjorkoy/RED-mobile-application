@@ -26,6 +26,8 @@ const MAPPING = {
   'checkmark.circle' : 'file-download-done',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'eye.fill': 'visibility',
+  'eye.slash.fill': 'visibility-off',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

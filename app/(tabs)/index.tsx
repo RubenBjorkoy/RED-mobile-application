@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Dimensions, Text, TextInput, Button
 import { CameraView, CameraType, useCameraPermissions, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture, GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import Vibrate from '@/utils/vibrate';
 import * as MediaLibrary from 'expo-media-library';
@@ -13,6 +13,9 @@ import { PictureProps, ErrorProps } from '@/utils/types';
 import * as Location from 'expo-location';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import apiUrl from '@/utils/apiUrls';
+import { systems } from '@/constants/Systems';
+import i18next from 'i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -52,11 +55,9 @@ export default function HomeScreen() {
     const [system, setSystem] = useState<string>('');
     const [subsystem, setSubsystem] = useState<string>('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [dropdownItems, setDropdownItems] = useState([
-        { label: 'Electrical', value: 'electrical' },
-        { label: 'Mechanical', value: 'mechanical' },
-        { label: 'Software', value: 'software' },
-    ]);
+    const [dropdownItems, setDropdownItems] = useState(
+        systems.map((system) => ({ label: system.name, value: system.name })),
+    );
     const [subsystemDropdownOpen, setSubsystemDropdownOpen] = useState(false);
     const [subsystemDropdownItems, setSubsystemDropdownItems] = useState([
         { label: 'Wire Harness', value: 'wire-harness' },
@@ -96,6 +97,12 @@ export default function HomeScreen() {
                 ...error,
                 system: system,
             });
+            setSubsystemDropdownItems(
+                systems.find((s) => s.name === system)?.subsystems.map((subsystem) => ({
+                    label: subsystem,
+                    value: subsystem,
+                })) || [],
+            );
         }
         if (subsystem) {
             setError({
@@ -114,6 +121,7 @@ export default function HomeScreen() {
     };
 
     const uploadData = async (data: ErrorProps) => {
+        const userToken = await AsyncStorage.getItem('userToken');
         const errorData = {
             title: data.title,
             system: data.system,
@@ -121,7 +129,7 @@ export default function HomeScreen() {
             location: data.location,
             timestamp: data.timestamp,
             resolved: data.resolved,
-            user: data.user,
+            user: userToken,
             image: null,
         };
         const imageData = {
@@ -221,6 +229,8 @@ export default function HomeScreen() {
             resolved: false,
             user: '',
         });
+        setSystem('');
+        setSubsystem('');
         setFormVisible(false);
         setPicture(null);
     }
@@ -318,42 +328,59 @@ export default function HomeScreen() {
                         </CameraView>
                     )}
                     {formVisible && (
-                        
                         <View style={styles.formOverlay}>
-                        <Text style={styles.label}>Error Title:</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Describe the error"
-                            placeholderTextColor={'#ccc'}
-                            value={error.title}
-                            onChangeText={(text) => setError({ ...error, title: text })}
-                        />
-                        <Text style={styles.label}>System:</Text>
-                        <DropDownPicker
-                            style={{ zIndex: 1000 }}
-                            open={dropdownOpen}
-                            value={system}
-                            items={dropdownItems}
-                            setOpen={setDropdownOpen}
-                            setValue={setSystem}
-                            setItems={setDropdownItems}
-                        />
-                        <Text style={styles.label}>Subsystem:</Text>
-                        <DropDownPicker
-                            open={subsystemDropdownOpen}
-                            value={subsystem}
-                            items={subsystemDropdownItems}
-                            setOpen={setSubsystemDropdownOpen}
-                            setValue={setSubsystem}
-                            setItems={setSubsystemDropdownItems}
-                        />
-                        <TouchableOpacity
-                            style={styles.submitButton}
-                            onPress={handleFormSubmit}
-                        >
-                            <Text style={styles.submitButtonText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
+                            <View>
+                                <Text style={styles.label}>{i18next.t('system')}:</Text>
+                                <DropDownPicker
+                                    open={dropdownOpen}
+                                    value={system}
+                                    items={dropdownItems}
+                                    setOpen={setDropdownOpen}
+                                    setValue={setSystem}
+                                    setItems={setDropdownItems}
+                                    zIndex={2}
+                                    placeholder={i18next.t('selectSystem')}
+                                    listMode='SCROLLVIEW'
+                                    scrollViewProps={{
+                                        persistentScrollbar: true,
+                                        nestedScrollEnabled: true,
+                                        decelerationRate: 'fast',
+                                    }}
+                                />
+                                <Text style={styles.label}>{i18next.t('subsystem')}:</Text>
+                                <DropDownPicker
+                                    open={subsystemDropdownOpen}
+                                    value={subsystem}
+                                    items={subsystemDropdownItems}
+                                    setOpen={setSubsystemDropdownOpen}
+                                    setValue={setSubsystem}
+                                    setItems={setSubsystemDropdownItems}
+                                    zIndex={1}
+                                    placeholder={i18next.t('selectSubsystem')}
+                                    listMode='SCROLLVIEW'
+                                    scrollViewProps={{
+                                        persistentScrollbar: true,
+                                        nestedScrollEnabled: true,
+                                        decelerationRate: 'fast',
+                                    }}
+                                />
+                                <Text style={styles.label}>{i18next.t('describeError')}:</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder={i18next.t('describeError')}
+                                    placeholderTextColor={'#ccc'}
+                                    value={error.title}
+                                    multiline={true}
+                                    onChangeText={(text) => setError({ ...error, title: text })}
+                                />
+                            </View>
+                            <TouchableOpacity
+                                style={styles.submitButton}
+                                onPress={handleFormSubmit}
+                            >
+                                <Text style={styles.submitButtonText}>Submit</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
                 </View>
             </GestureDetector>
@@ -407,7 +434,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         position: 'absolute',
         top: 40,
-        height: height - 80,
+        height: height - tabBarHeight * 2,
         paddingHorizontal: 20,
     },
     message: {
@@ -434,29 +461,17 @@ const styles = StyleSheet.create({
     },
     formOverlay: {
         position: 'absolute',
-        top: '20%', // Centers the form vertically
-        left: '10%', // Adds space from the left side
-        right: '10%', // Adds space from the right side
-        padding: 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)', // Semi-transparent dark background
+        top: '10%',
+        marginHorizontal: '10%',
+        width: '80%',
+        height: '70%',
+        padding: "3%",
+        minHeight: 400,
+        paddingBottom: 100,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         borderRadius: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.5,
-        shadowRadius: 5,
-        elevation: 10, // Adds a shadow effect for Android
-        zIndex: 100, // Ensures the form stays above other components
-    },
-    form: {
-        position: 'absolute',
-        top: 50,
-        padding: 20,
-        backgroundColor: 'white',
-        width: '90%',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
+        alignItems: 'center',
+        zIndex: 100,
     },
     label: {
         fontSize: 16,
@@ -470,15 +485,24 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 16,
         color: 'white',
+        maxHeight: "40%",
+        width: '100%',
+        height: "auto"
     },
     submitButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
+        position: 'absolute',
+        backgroundColor: '#FFCF26',
+        padding: 20,
+        width: '100%',
         borderRadius: 5,
         alignItems: 'center',
+        alignSelf: 'center',
+        bottom: "3%",
+        marginLeft: "3%",
+        marginRight: "3%",
     },
     submitButtonText: {
-        color: 'white',
+        color: 'black',
         fontSize: 16,
     },
 });
