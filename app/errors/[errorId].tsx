@@ -215,6 +215,23 @@ export default function ErrorDetails() {
     }
   }
 
+  const handleDeleteError = async (errorId: string) => {
+    if(!errorId || errorId === '') {
+      Alert.alert('Error', 'Invalid error ID');
+      return;
+    }
+    try {
+      const response = await fetch(`${apiUrl}/errors/${errorId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Error deleting error');
+      router.back();
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to delete error');
+    }
+  }
+
   if (!errorDetails) {
     return (
       <View style={styles.loadingContainer}>
@@ -246,13 +263,13 @@ export default function ErrorDetails() {
             style={styles.image}
           />
         ) || (
-          reloading ? <ThemedText>Loading image...</ThemedText> : <ThemedText>No image</ThemedText>
+          reloading ? <ThemedText>{i18next.t('loadingImage')}</ThemedText> : <ThemedText>{i18next.t('noImage')}</ThemedText>
         )
       }
       {
         errorDetails.user === user && (
-          <TouchableOpacity onPress={() => {}} style={styles.deleteButton}>
-            <ThemedText style={{color: 'white', textAlign: 'center'}}>Delete</ThemedText>
+          <TouchableOpacity onPress={() => handleDeleteError(errorDetails.id || '')} style={styles.deleteButton}>
+            <ThemedText style={{color: 'white', textAlign: 'center'}}>{i18next.t('delete')}</ThemedText>
           </TouchableOpacity>
         )
       }

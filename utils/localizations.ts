@@ -43,6 +43,7 @@ const resources = {
             removeSolution: "Remove as solution",
             personalErrors: "Personal errors",
             allErrors: "All errors",
+            noImage: "No image",
         }
     },
     no: {
@@ -86,6 +87,7 @@ const resources = {
             removeSolution: "Fjern som løsning",
             personalErrors: "Personlige feil",
             allErrors: "Alle feil",
+            noImage: "Ingen bilde",
         }
     }
 }
