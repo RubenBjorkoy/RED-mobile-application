@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { useRouter, useGlobalSearchParams } from 'expo-router';
 import apiUrl from '@/utils/apiUrls';
@@ -26,7 +27,6 @@ export default function ErrorDetails() {
   const [imageUrl, setImageUrl] = useState('');
   const [comments, setComments] = useState<CommentProps[]>([]);
   const [newComment, setNewComment] = useState<CommentProps>({
-    id: '',
     comment: '',
     user: '',
     errorId: '',
@@ -34,7 +34,7 @@ export default function ErrorDetails() {
   });
   const [author, setAuthor] = useState<string>('');
   const [user, setUser] = useState<string>('');
-  const [idUserMap, setIdUserMap] = useState<{ [key: string]: string }>({});
+  const [idUserMap, setIdUserMap] = useState<{ [key: string]: {name: string, role: string} }>({});
   const [reloading, setReloading] = useState<boolean>(false);
 
   const fetchDetails = async () => {
@@ -45,22 +45,18 @@ export default function ErrorDetails() {
         setUser(userToken);
       }
   
-      // Prepare the API calls
       const errorPromise = fetch(`${apiUrl}/errors/${errorId}`);
       const allUsersPromise = fetch(`${apiUrl}/users`);
       const commentsPromise = fetch(`${apiUrl}/comments?errorId=${errorId}`);
   
-      // Wait for the error details to initiate dependent fetch calls
       const errorResponse = await errorPromise;
       if (!errorResponse.ok) throw new Error('Error fetching error details');
       const errorData = await errorResponse.json();
       setErrorDetails(errorData);
   
-      // Prepare dependent API calls based on the error details
       const authorPromise = fetch(`${apiUrl}/users/${errorData.user}`);
       const imagePromise = fetch(`${apiUrl}/images/${errorData.image}`);
   
-      // Run all promises concurrently
       const [authorResponse, allUsersResponse, imageResponse, commentsResponse] = await Promise.all([
         authorPromise,
         allUsersPromise,
@@ -68,16 +64,15 @@ export default function ErrorDetails() {
         commentsPromise,
       ]);
   
-      // Handle each response
       if (!authorResponse.ok) throw new Error('Error fetching author');
       const authorData = await authorResponse.json();
       setAuthor(authorData.username);
   
       if (!allUsersResponse.ok) throw new Error('Error fetching users');
       const allUsersData = await allUsersResponse.json();
-      const idUserMap: { [key: string]: string } = {};
+      const idUserMap: { [key: string]: {name: string, role: string} } = {};
       allUsersData.forEach((user: any) => {
-        idUserMap[user.id] = user.username;
+        idUserMap[user.id] = {"name": user.username, "role": user.role};
       });
       setIdUserMap(idUserMap);
   
@@ -126,7 +121,6 @@ export default function ErrorDetails() {
       const updatedCommentsJson = await updatedComments.json();
       setComments(updatedCommentsJson);
       setNewComment({
-        id: '',
         comment: '',
         user: '',
         errorId: '',
@@ -137,6 +131,67 @@ export default function ErrorDetails() {
       Alert.alert('Error', 'Failed to add comment');
     }
   };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if(!commentId || commentId === '') {
+      Alert.alert('Error', 'Invalid comment ID');
+      return;
+    }
+    try {
+      const response = await fetch(`${apiUrl}/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Error deleting comment');
+      const updatedComments = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
+
+      const updatedCommentsJson = await updatedComments.json();
+      setComments(updatedCommentsJson);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to delete comment');
+    }
+  }
+
+  const handleMarkSolution = async (commentId: string) => {
+    if(!commentId || commentId === '') {
+      Alert.alert('Error', 'Invalid comment ID');
+      return;
+    }
+    if(errorDetails?.resolved === commentId) {
+      try {
+        const response = await fetch(`${apiUrl}/errors/${errorDetails?.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({...errorDetails, resolved: ''}),
+        });
+        if(!response.ok) throw new Error('Error removing solution');
+        const updatedError = await fetch(`${apiUrl}/errors/${errorId}`);
+
+        const updatedErrorJson = await updatedError.json();
+        setErrorDetails(updatedErrorJson);
+        return;
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', 'Failed to remove solution');
+        return;
+      }
+    }
+    try {
+      const response = await fetch(`${apiUrl}/errors/${errorDetails?.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({...errorDetails, resolved: commentId}),
+      });
+      if(!response.ok) throw new Error('Error marking solution');
+      const updatedError = await fetch(`${apiUrl}/errors/${errorId}`);
+
+      const updatedErrorJson = await updatedError.json();
+      setErrorDetails(updatedErrorJson);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to mark solution');
+    }
+  }
 
   if (!errorDetails) {
     return (
@@ -150,6 +205,13 @@ export default function ErrorDetails() {
     <ScrollView 
       refreshControl={<RefreshControl refreshing={reloading} onRefresh={fetchDetails} />}
       contentContainerStyle={styles.container}>
+      {
+        errorDetails.resolved && (errorDetails.resolved !== '') && (
+          <ThemedText style={styles.resolved}>Resolved</ThemedText>
+        ) || (
+          <ThemedText style={styles.notResolved}>Not resolved</ThemedText>
+        )
+      }
       <ThemedText style={styles.title}>{errorDetails.title}</ThemedText>
       <ThemedText style={styles.system}>{author}</ThemedText>
       <ThemedText style={styles.system}>{errorDetails.system}</ThemedText>
@@ -165,7 +227,32 @@ export default function ErrorDetails() {
           reloading ? <ThemedText>Loading image...</ThemedText> : <ThemedText>No image</ThemedText>
         )
       }
-      {/* {imageUrl && <Image source={{ uri: `data:image/jpeg;base64,${imageUrl}` }} style={styles.image} />} */}
+      {
+        errorDetails.user === user && (
+          <TouchableOpacity onPress={() => {}} style={styles.deleteButton}>
+            <ThemedText>Delete</ThemedText>
+          </TouchableOpacity>
+        )
+      }
+      {
+        errorDetails.resolved && (errorDetails.resolved !== '') && (
+          <ThemedView>
+            <ThemedText style={styles.sectionTitle}>Solution</ThemedText>
+            <ThemedText>{comments.find((comment) => comment.id === errorDetails.resolved)?.comment}</ThemedText>
+            <ThemedText style={styles.commentAuthor}>
+              - {idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.name} ({idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.role}) ({new Date(comments.find((comment) => comment.id === errorDetails.resolved)?.timestamp || 0).toLocaleString()})
+            </ThemedText>
+            {
+              errorDetails.user === user && (
+                <TouchableOpacity onPress={() => handleMarkSolution(errorDetails.resolved)} style={styles.approveButton}>
+                  <ThemedText>Remove solution</ThemedText>
+                </TouchableOpacity>
+              )
+            }
+          </ThemedView>
+        )
+      }
+        
 
       <ThemedView style={styles.commentsSection}>
         <ThemedText style={styles.sectionTitle}>{i18next.t('comments')}</ThemedText>
@@ -174,8 +261,33 @@ export default function ErrorDetails() {
             <ThemedView key={index} style={styles.comment}>
               <ThemedText>{comment.comment}</ThemedText>
               <ThemedText style={styles.commentAuthor}>
-                - {idUserMap[comment.user]} ({new Date(comment.timestamp).toLocaleString()})
+                - {idUserMap[comment.user].name} ({idUserMap[comment.user].role}) ({new Date(comment.timestamp).toLocaleString()})
               </ThemedText>
+              {
+                // errorDetails.user === user && (
+                //   <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
+                //     <ThemedText>Mark as solution</ThemedText>
+                //   </TouchableOpacity>
+                // )
+                errorDetails.user === user && (
+                  errorDetails.resolved === comment.id ? (
+                    <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
+                      <ThemedText>Remove solution</ThemedText>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
+                      <ThemedText>Mark as solution</ThemedText>
+                    </TouchableOpacity>
+                  )
+                )
+              }
+              {
+                comment.user === user && (
+                  <TouchableOpacity onPress={() => handleDeleteComment(comment.id || '')} style={styles.deleteButton}>
+                    <ThemedText>Delete</ThemedText>
+                  </TouchableOpacity>
+                )
+              }
             </ThemedView>
           ))}
         {user && (
@@ -201,7 +313,6 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 16,
-        // backgroundColor: '#f5f5f5',
     },
     loadingContainer: {
         flex: 1,
@@ -260,4 +371,28 @@ const styles = StyleSheet.create({
       fontSize: 12,
       color: 'gray',
     },
+    deleteButton: {
+      marginBottom: 16,
+      backgroundColor: '#cc1010',
+      color: 'red',
+      borderRadius: 2,
+      padding: 8,
+      textAlign: 'center',
+      width: 'auto',
+    },
+    approveButton: {
+      marginBottom: 16,
+      backgroundColor: '#107710',
+      color: 'green',
+      borderRadius: 2,
+      padding: 8,
+      textAlign: 'center',
+      width: 'auto',
+    },
+    notResolved: {
+        color: 'red',
+    },
+    resolved: {
+        color: 'green',
+    }
 });

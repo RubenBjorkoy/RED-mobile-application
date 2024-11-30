@@ -16,7 +16,7 @@ export interface ErrorProps {
     subsystem: string;
     location: LocationProps;
     timestamp: number;
-    resolved: boolean;
+    resolved: string;
     user: string;
 }
 
@@ -40,7 +40,7 @@ export interface User {
 }
 
 export interface CommentProps {
-    id: string;
+    id?: string;
     errorId: string;
     user: string;
     comment: string;

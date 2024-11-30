@@ -11,53 +11,19 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../ThemedView';
 
 export default function ErrorCard(error: ErrorProps) {
-    const [expanded, setExpanded] = React.useState(false);
-    const [image, setImage] = React.useState<ImageProps | null>(null);
-    const navigation = useNavigation<any>();
-    const router = useRouter();
-
-    const onPress = () => {
-        Vibrate.light();
-        // setExpanded(!expanded);
-        // if(!image) {
-        //     fetchImage();
-        // }
-        // navigation.navigate(`${error.id}`);
-        // if (error.id) {
-        //     router.push(`/(tabs)/errors/[${error.id}]`);
-        // }
-    }
-
-    const fetchImage = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/images/${error.image}`);
-            const data = await response.json();
-            setImage(data);
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     return (
         <ThemedView style={styles.container}>
+            {
+                error.resolved === '' ? (
+                    <ThemedText style={styles.notResolved}>Not resolved</ThemedText>
+                ) : (
+                    <ThemedText style={styles.resolved}>Resolved</ThemedText>
+                )
+            }
             <ThemedText style={styles.setColorDark} type="subtitle">{error.title}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.system}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.subsystem}</ThemedText>
-            {
-                // expanded && (
-                //     <>
-                //         <ThemedText style={styles.setColorDark}>{i18next.t('user')}: {error.user}</ThemedText>
-                //         {
-                //             image && (
-                //                 <Image
-                //                     source={{ uri: `data:image/jpeg;base64,${image.image}` }}
-                //                     style={styles.image}
-                //                 />
-                //             )
-                //         }
-                //     </>
-                // )
-            }
         </ThemedView>
     );
 }
@@ -72,20 +38,13 @@ const styles = StyleSheet.create({
         borderBottomColor: '#aaaaaa',
         borderBottomWidth: 1,
     },
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    stepContainer: {
-        gap: 8,
-    },
     setColorDark: {
         color: '#aaaaaa',
     },
-    image: {
-        width: '100%',
-        aspectRatio: 1,
-        objectFit: 'contain',
+    notResolved: {
+        color: 'red',
+    },
+    resolved: {
+        color: 'green',
     }
 });

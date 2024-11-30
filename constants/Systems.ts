@@ -93,9 +93,14 @@ export const systems = [
             "Data Engineering",
             "Drivers",
             "Embedded Electronics",
+            "Golog",
+            "HIL",
+            "Matlab",
             "Modelling",
+            "PostPro",
             "Performance",
             "Simulation",
+            "Telemetry",
             "Torque Vectoring",
         ]
     }

@@ -16,6 +16,7 @@ import apiUrl from '@/utils/apiUrls';
 import { systems } from '@/constants/Systems';
 import i18next from 'i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 function useBackButton(handler: () => void) {
     useEffect(() => {
@@ -49,7 +50,7 @@ export default function HomeScreen() {
             longitude: 0,
         },
         timestamp: 0,
-        resolved: false,
+        resolved: '',
         user: "Ruben Bjørkøy",
     });
     const [system, setSystem] = useState<string>('');
@@ -64,6 +65,7 @@ export default function HomeScreen() {
         { label: 'Motors', value: 'motors' },
         { label: 'Telemetry', value: 'telemetry' },
     ]);
+    const router = useRouter();
 
     useEffect(() => {
         (async () => {
@@ -144,13 +146,15 @@ export default function HomeScreen() {
         });
         const uploadedImage = await imageResponse.json();
         errorData.image = uploadedImage.id;
-        await fetch(`${apiUrl}/errors`, {
+        const errorResponse = await fetch(`${apiUrl}/errors`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(errorData),
         });
+        const uploadedError = await errorResponse.json();
+        router.push(`/errors/${uploadedError.id}` as const);
     };
 
     useBackButton(backButtonHandler);
@@ -211,9 +215,6 @@ export default function HomeScreen() {
             console.log(error.title, error.system, error.subsystem);
             return;
         }
-
-        console.log(error.location, error.timestamp, error.resolved, error.user, error.title, system, subsystem);
-        // console.log(error.image);
         uploadData(error);
         Alert.alert('Success', 'Error reported');
         setError({
@@ -226,7 +227,7 @@ export default function HomeScreen() {
                 longitude: 0,
             },
             timestamp: 0,
-            resolved: false,
+            resolved: '',
             user: '',
         });
         setSystem('');

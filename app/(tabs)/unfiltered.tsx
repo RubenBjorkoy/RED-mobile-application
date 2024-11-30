@@ -24,7 +24,6 @@ export default function UnfilteredScreen() {
   const [errors, setErrors] = React.useState<ErrorProps[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
   const [filter, setFilter] = React.useState<Filter>({});
-  const navigation = useNavigation<any>();
   const router = useRouter();
 
   const onRefresh = React.useCallback(() => {
