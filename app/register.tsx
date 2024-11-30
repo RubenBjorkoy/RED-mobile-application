@@ -33,6 +33,13 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
+    
+    const allUsers = await fetch(`${apiUrl}/users`);
+    const allUsersJson = await allUsers.json();
+    if (allUsersJson.some((u: any) => u.username === user.username)) {
+      Alert.alert('Error', 'Username already exists.');
+      return;
+    }
 
     try {
       const newUser = { ...user };
