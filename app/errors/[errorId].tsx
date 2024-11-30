@@ -44,18 +44,35 @@ export default function ErrorDetails() {
       if (userToken) {
         setUser(userToken);
       }
-
-      const errorResponse = await fetch(`${apiUrl}/errors/${errorId}`);
+  
+      // Prepare the API calls
+      const errorPromise = fetch(`${apiUrl}/errors/${errorId}`);
+      const allUsersPromise = fetch(`${apiUrl}/users`);
+      const commentsPromise = fetch(`${apiUrl}/comments?errorId=${errorId}`);
+  
+      // Wait for the error details to initiate dependent fetch calls
+      const errorResponse = await errorPromise;
       if (!errorResponse.ok) throw new Error('Error fetching error details');
       const errorData = await errorResponse.json();
       setErrorDetails(errorData);
-
-      const authorResponse = await fetch(`${apiUrl}/users/${errorData.user}`);
+  
+      // Prepare dependent API calls based on the error details
+      const authorPromise = fetch(`${apiUrl}/users/${errorData.user}`);
+      const imagePromise = fetch(`${apiUrl}/images/${errorData.image}`);
+  
+      // Run all promises concurrently
+      const [authorResponse, allUsersResponse, imageResponse, commentsResponse] = await Promise.all([
+        authorPromise,
+        allUsersPromise,
+        imagePromise,
+        commentsPromise,
+      ]);
+  
+      // Handle each response
       if (!authorResponse.ok) throw new Error('Error fetching author');
       const authorData = await authorResponse.json();
       setAuthor(authorData.username);
-
-      const allUsersResponse = await fetch(`${apiUrl}/users`);
+  
       if (!allUsersResponse.ok) throw new Error('Error fetching users');
       const allUsersData = await allUsersResponse.json();
       const idUserMap: { [key: string]: string } = {};
@@ -63,23 +80,22 @@ export default function ErrorDetails() {
         idUserMap[user.id] = user.username;
       });
       setIdUserMap(idUserMap);
-
-      const imageResponse = await fetch(`${apiUrl}/images/${errorData.image}`);
+  
       if (!imageResponse.ok) throw new Error('Error fetching image');
       const imageData: ImageProps = await imageResponse.json();
       setImageUrl(imageData.image);
-
-      const commentsResponse = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
+  
       if (!commentsResponse.ok) throw new Error('Error fetching comments');
       const commentsData = await commentsResponse.json();
-      // console.log(commentsData[0]);
       setComments(commentsData);
+  
     } catch (error) {
       console.error(error);
       Alert.alert('Error', error as string);
     }
     setReloading(false);
   };
+  
 
   useEffect(() => {
     fetchDetails();
@@ -138,7 +154,18 @@ export default function ErrorDetails() {
       <ThemedText style={styles.system}>{author}</ThemedText>
       <ThemedText style={styles.system}>{errorDetails.system}</ThemedText>
       <ThemedText style={styles.subsystem}>{errorDetails.subsystem}</ThemedText>
-      <Image source={{ uri: `data:image/jpeg;base64,${imageUrl}` }} style={styles.image} />
+
+      {
+        imageUrl && (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${imageUrl}` }}
+            style={styles.image}
+          />
+        ) || (
+          reloading ? <ThemedText>Loading image...</ThemedText> : <ThemedText>No image</ThemedText>
+        )
+      }
+      {/* {imageUrl && <Image source={{ uri: `data:image/jpeg;base64,${imageUrl}` }} style={styles.image} />} */}
 
       <ThemedView style={styles.commentsSection}>
         <ThemedText style={styles.sectionTitle}>{i18next.t('comments')}</ThemedText>
