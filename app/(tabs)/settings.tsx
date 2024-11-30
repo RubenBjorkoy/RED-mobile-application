@@ -114,10 +114,10 @@ export default function SettingsScreen({ navigation }: any) {
                 style={styles.container}>
                 <GestureHandlerRootView>
                     <View style={styles.container}>
-                        <ThemedView style={styles.titleContainer}>
+                        <View style={styles.titleContainer}>
                             <ThemedText type="title">{i18next.t("settings")}</ThemedText>
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("username")}</ThemedText>
                             <TextInput
                                 style={styles.input}
@@ -126,8 +126,8 @@ export default function SettingsScreen({ navigation }: any) {
                                 value={user.username}
                                 onChange={(e) => setUser({ ...user, username: e.nativeEvent.text })}
                             />
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("password")}</ThemedText>
                             <ThemedView>
                                 <TextInput
@@ -142,14 +142,15 @@ export default function SettingsScreen({ navigation }: any) {
                                     <ThemedText><IconSymbol name={hidePassword ? 'eye.slash.fill' : 'eye.fill'} color="white" size={20} /> </ThemedText>
                                 </TouchableOpacity>
                             </ThemedView>
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("group")}</ThemedText>
                             <View style={styles.picker}>
                                 <Picker
                                     style={styles.picker}
                                     onValueChange={(itemValue: string) => setUser({ ...user, group: itemValue })}
                                     selectedValue={user.group}
+                                    dropdownIconColor={'white'}
                                 >
                                     <Picker.Item label="Board" value="board" />
                                     <Picker.Item label="Marketing" value="marketing" />
@@ -164,8 +165,8 @@ export default function SettingsScreen({ navigation }: any) {
                                     <Picker.Item label="Autonomous Systems" value="autonomoussystems" />
                                 </Picker>
                             </View>
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("role")}</ThemedText>
                             <TextInput
                                 style={styles.input}
@@ -174,27 +175,28 @@ export default function SettingsScreen({ navigation }: any) {
                                 value={user.role}
                                 onChange={(e) => setUser({ ...user, role: e.nativeEvent.text })}
                             />
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("language")}</ThemedText>
                             <View style={styles.picker}>
                                 <Picker
                                     style={styles.picker}
                                     onValueChange={(itemValue: string) => setUser({ ...user, language: itemValue })}
                                     selectedValue={user.language}
+                                    dropdownIconColor={'white'}
                                 >
                                     <Picker.Item label={i18next.t("english")} value="en" />
                                     <Picker.Item label={i18next.t("norwegian")} value="no" />
                                 </Picker>
                             </View>
-                        </ThemedView>
-                        <ThemedView style={styles.inputContainer}>
+                        </View>
+                        <View style={styles.inputContainer}>
                             <Button title={i18next.t("cancel")} color="#cc0000" onPress={cancel} />
                             <Button title={i18next.t("apply")} color="#00bb00" onPress={apply} />
-                        </ThemedView>
-                        <ThemedView style={styles.logoutContainer}>
+                        </View>
+                        <View style={styles.logoutContainer}>
                             <Button title={i18next.t("logout")} color="#ff0000" onPress={handleLogout} />
-                        </ThemedView>
+                        </View>
                     </View>
                 </GestureHandlerRootView>
             </ScrollView>
@@ -225,6 +227,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         color: 'white',
         paddingHorizontal: 16,
+        backgroundColor: '#333',
         fontSize: 16,
     },
     picker: {
@@ -233,6 +236,7 @@ const styles = StyleSheet.create({
         color: 'white',
         width: '100%',
         borderColor: 'gray',
+        backgroundColor: '#333',
         borderWidth: 1,
         fontSize: 16,
     },

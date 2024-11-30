@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import apiUrl from '@/utils/apiUrls';
+import { ThemedText } from '@/components/ThemedText';
+import i18next from 'i18next';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -26,12 +28,15 @@ export default function LoginScreen() {
         }
     };
 
+    const IMAGE_URL = require('@/assets/images/revolve-logo.png');
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
+            <Image source={IMAGE_URL} style={styles.image} />
+            <ThemedText style={styles.title}>{i18next.t('signin')}</ThemedText>
             <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder={i18next.t('username')}
                 placeholderTextColor="gray"
                 value={username}
                 onChangeText={setUsername}
@@ -39,20 +44,19 @@ export default function LoginScreen() {
             />
             <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder={i18next.t('password')}
                 placeholderTextColor="gray"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={true}
                 autoCapitalize="none"
             />
-            <Button title="Log In" onPress={handleLogin} />
-            <Button
-                title="Register"
-                onPress={() => {
-                    navigation.navigate('register'); // Navigate to the Register screen
-                }}
-            />
+            <TouchableOpacity onPress={handleLogin} style={styles.button}>
+                <Text style={styles.buttonText}>{i18next.t('signin')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('register')} style={styles.button}>
+                <Text style={styles.buttonText}>{i18next.t('signup')}</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -79,4 +83,21 @@ const styles = StyleSheet.create({
         color: 'white',
         backgroundColor: '#333',
     },
+    button: {
+        backgroundColor: '#FFCF26',
+        padding: 10,
+        borderRadius: 4,
+        marginTop: 10,
+        width: '50%',
+        minWidth: 100,
+    },
+    buttonText: {
+        color: 'black',
+        textAlign: 'center',
+    },
+    image: {
+        width: 200,
+        height: 200,
+        marginBottom: 40,
+    }
 });

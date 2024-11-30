@@ -488,6 +488,8 @@ const styles = StyleSheet.create({
         color: 'white',
         maxHeight: "40%",
         width: '100%',
+        minWidth: "100%",
+        maxWidth: "100%",
         height: "auto"
     },
     submitButton: {

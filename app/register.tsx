@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import i18next from 'i18next';
@@ -17,6 +18,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useNavigation } from '@react-navigation/native';
 import apiUrl from '@/utils/apiUrls';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
 export default function RegisterScreen() {
   const [user, setUser] = useState({
@@ -33,7 +36,7 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
-    
+
     const allUsers = await fetch(`${apiUrl}/users`);
     const allUsersJson = await allUsers.json();
     if (allUsersJson.some((u: any) => u.username === user.username)) {
@@ -65,15 +68,18 @@ export default function RegisterScreen() {
     navigation.goBack();
   };
 
+  const IMAGE_URL = require('@/assets/images/revolve-logo.png');
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.contentContainer} style={styles.container}>
         <GestureHandlerRootView>
           <View style={styles.container}>
-            <Text style={styles.title}>{i18next.t('register')}</Text>
+            <Image source={IMAGE_URL} style={styles.image} />
+            <ThemedText style={styles.title}>{i18next.t('signup')}</ThemedText>
 
             <View style={styles.inputContainer}>
-              <Text>{i18next.t('username')}</Text>
+              <ThemedText>{i18next.t('username')}</ThemedText>
               <TextInput
                 style={styles.input}
                 placeholder={i18next.t('username')}
@@ -84,7 +90,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text>{i18next.t('password')}</Text>
+              <ThemedText>{i18next.t('password')}</ThemedText>
               <View>
                 <TextInput
                   secureTextEntry={hidePassword}
@@ -104,7 +110,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text>{i18next.t('group')}</Text>
+              <ThemedText>{i18next.t('group')}</ThemedText>
               <Picker
                 style={styles.picker}
                 selectedValue={user.group}
@@ -125,7 +131,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text>{i18next.t('role')}</Text>
+              <ThemedText>{i18next.t('role')}</ThemedText>
               <TextInput
                 style={styles.input}
                 placeholder={i18next.t('role')}
@@ -136,8 +142,12 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <Button title={i18next.t('cancel')} color="#cc0000" onPress={cancel} />
-              <Button title={i18next.t('register')} color="#00bb00" onPress={handleRegister} />
+              <TouchableOpacity onPress={handleRegister} style={styles.approveButton}>
+                <Text style={styles.buttonText}>{i18next.t('signup')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={cancel} style={styles.cancelButton}>
+                <Text style={styles.buttonText}>{i18next.t('cancel')}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </GestureHandlerRootView>
@@ -182,5 +192,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     top: 14,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
+  },
+  approveButton: {
+    backgroundColor: '#FFCF26',
+    padding: 10,
+    borderRadius: 4,
+    marginTop: 10,
+    marginBottom: 20,
+    width: '100%',
+    minWidth: 100,
+  },
+  cancelButton: {
+    backgroundColor: '#ff2020',
+    padding: 10,
+    borderRadius: 4,
+    marginTop: 10,
+    width: '100%',
+    minWidth: 100,
+  },
+  buttonText: {
+    color: 'black',
+    textAlign: 'center',
   },
 });

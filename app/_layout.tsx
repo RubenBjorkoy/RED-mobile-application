@@ -9,7 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-reanimated';
 import * as Localization from 'expo-localization'
 import i18next from '@/utils/localizations';
-import LoginScreen from './login';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -20,7 +19,7 @@ export default function RootLayout() {
   const [locale, setLocale] = useState(Localization.getLocales()[0].languageCode);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceGrotesk: require('@/assets/fonts/Space_Grotesk/static/SpaceGrotesk-Regular.ttf'),
   });
 
   useEffect(() => {
@@ -37,8 +36,9 @@ export default function RootLayout() {
         SplashScreen.hideAsync();
       }
     };
-
-    loadAppState();
+    if(loaded) {
+      loadAppState();
+    }
   }, [loaded]);
 
   if (!loaded) {

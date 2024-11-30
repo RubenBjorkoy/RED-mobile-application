@@ -30,6 +30,8 @@ const resources = {
             addComment: "Add comment",
             writeComment: "Write a comment",
             comments: "Comments",
+            signin: "Sign in",
+            signup: "Sign up",
         }
     },
     no: {
@@ -60,6 +62,8 @@ const resources = {
             addComment: "Legg til kommentar",
             writeComment: "Skriv en kommentar",
             comments: "Kommentarer",
+            signin: "Logg inn",
+            signup: "Registrer",
         }
     }
 }
