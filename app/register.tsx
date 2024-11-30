@@ -10,6 +10,7 @@ import {
   ScrollView,
   Alert,
   Image,
+  Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import i18next from 'i18next';
@@ -76,10 +77,9 @@ export default function RegisterScreen() {
         <GestureHandlerRootView>
           <View style={styles.container}>
             <Image source={IMAGE_URL} style={styles.image} />
-            <ThemedText style={styles.title}>{i18next.t('signup')}</ThemedText>
 
             <View style={styles.inputContainer}>
-              <ThemedText>{i18next.t('username')}</ThemedText>
+              <ThemedText type='defaultSemiBold'>{i18next.t('username')}</ThemedText>
               <TextInput
                 style={styles.input}
                 placeholder={i18next.t('username')}
@@ -90,7 +90,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <ThemedText>{i18next.t('password')}</ThemedText>
+              <ThemedText type='defaultSemiBold'>{i18next.t('password')}</ThemedText>
               <View>
                 <TextInput
                   secureTextEntry={hidePassword}
@@ -110,7 +110,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <ThemedText>{i18next.t('group')}</ThemedText>
+              <ThemedText type='defaultSemiBold'>{i18next.t('group')}</ThemedText>
               <Picker
                 style={styles.picker}
                 selectedValue={user.group}
@@ -131,7 +131,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputContainer}>
-              <ThemedText>{i18next.t('role')}</ThemedText>
+              <ThemedText type='defaultSemiBold'>{i18next.t('role')}</ThemedText>
               <TextInput
                 style={styles.input}
                 placeholder={i18next.t('role')}
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    height: 50,
+    height: 60,
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 8,
@@ -184,18 +184,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
   },
   picker: {
-    height: 50,
+    height: Platform.OS === 'ios' ? 150 : 60,
     color: 'white',
     backgroundColor: '#333',
+    padding: 0,
   },
   showPasswordIcon: {
     position: 'absolute',
     right: 16,
-    top: 14,
+    top: 20,
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     alignSelf: 'center',
   },
   approveButton: {

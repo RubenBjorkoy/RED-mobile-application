@@ -6,7 +6,12 @@ import { ThemedView } from './ThemedView';
 import i18next from 'i18next';
 import { systems } from '@/constants/Systems';
 
-export default function FilterBar({ onFilterChange }: { onFilterChange: (filter: { search: string, system: string, subsystem: string }) => void }) {
+interface FilterBarProps {
+    onFilterChange: (filter: { search: string, system: string, subsystem: string }) => void;
+    expanded: boolean;
+}
+
+export default function FilterBar({ onFilterChange, expanded }: FilterBarProps) {
     const [search, setSearch] = React.useState<string>('');
     const [system, setSystem] = React.useState<string>('');
     const [subsystem, setSubsystem] = React.useState<string>('');
@@ -52,7 +57,8 @@ export default function FilterBar({ onFilterChange }: { onFilterChange: (filter:
                     onChangeText={setSearch}
                 />
             </ThemedView>
-            <ThemedView>
+            { expanded &&
+            (<ThemedView>
                 <DropDownPicker
                     open={systemDropdownOpen}
                     value={system}
@@ -85,7 +91,8 @@ export default function FilterBar({ onFilterChange }: { onFilterChange: (filter:
                         decelerationRate: 'fast',
                     }}
                 />
-            </ThemedView>
+            </ThemedView>)
+            }
         </View>
     );
 }

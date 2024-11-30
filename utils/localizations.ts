@@ -32,6 +32,17 @@ const resources = {
             comments: "Comments",
             signin: "Sign in",
             signup: "Sign up",
+            signout: "Sign out",
+            resolved: "Resolved",
+            notResolved: "Not resolved",
+            youhavenoerrors: "You have no errors",
+            loadingImage: "Loading image...",
+            delete: "Delete",
+            solution: "Solution",
+            addSolution: "Mark as solution",
+            removeSolution: "Remove as solution",
+            personalErrors: "Personal errors",
+            allErrors: "All errors",
         }
     },
     no: {
@@ -64,6 +75,17 @@ const resources = {
             comments: "Kommentarer",
             signin: "Logg inn",
             signup: "Registrer",
+            signout: "Logg ut",
+            resolved: "Løst",
+            notResolved: "Ikke løst",
+            youhavenoerrors: "Du har ingen feil",
+            loadingImage: "Laster bilde...",
+            delete: "Slett",
+            solution: "Løsning",
+            addSolution: "Marker som løsning",
+            removeSolution: "Fjern som løsning",
+            personalErrors: "Personlige feil",
+            allErrors: "Alle feil",
         }
     }
 }

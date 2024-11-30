@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Text, TouchableOpacity, Button, View, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Image, Text, TouchableOpacity, Button, View, SafeAreaView, ScrollView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState, useEffect, useContext } from 'react';
 
@@ -195,7 +195,7 @@ export default function SettingsScreen({ navigation }: any) {
                             <Button title={i18next.t("apply")} color="#00bb00" onPress={apply} />
                         </View>
                         <View style={styles.logoutContainer}>
-                            <Button title={i18next.t("logout")} color="#ff0000" onPress={handleLogout} />
+                            <Button title={i18next.t("signout")} color="#ff0000" onPress={handleLogout} />
                         </View>
                     </View>
                 </GestureHandlerRootView>
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     },
     picker: {
         gap: 8,
-        height: 60,
+        height: Platform.OS === 'ios' ? 150 : 60, //The picker on IOS is a wheel, so it just overflows beneath the other elements. This way should fix that
         color: 'white',
         width: '100%',
         borderColor: 'gray',

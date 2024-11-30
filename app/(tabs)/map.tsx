@@ -3,7 +3,6 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useClusterer } from 'react-native-clusterer';
 import { ErrorProps, LocationProps, MarkerProps } from '@/utils/types';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import apiUrl from '@/utils/apiUrls';
@@ -98,6 +97,9 @@ export default function MapScreen() {
                     longitude: location.longitude,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
+                }}
+                onRegionChangeComplete={(region) => {
+                    // console.log(region);
                 }}
             >
                 {

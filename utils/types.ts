@@ -46,3 +46,9 @@ export interface CommentProps {
     comment: string;
     timestamp: number;
 }
+
+export interface Filter {
+    search?: string;
+    system?: string;
+    subsystem?: string;
+}

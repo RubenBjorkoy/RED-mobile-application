@@ -229,9 +229,9 @@ export default function ErrorDetails() {
       contentContainerStyle={styles.container}>
       {
         errorDetails.resolved && (errorDetails.resolved !== '') && (
-          <ThemedText style={styles.resolved}>Resolved</ThemedText>
+          <ThemedText style={styles.resolved}>{i18next.t('resolved')}</ThemedText>
         ) || (
-          <ThemedText style={styles.notResolved}>Not resolved</ThemedText>
+          <ThemedText style={styles.notResolved}>{i18next.t('notResolved')}</ThemedText>
         )
       }
       <ThemedText style={styles.title}>{errorDetails.title}</ThemedText>
@@ -256,10 +256,11 @@ export default function ErrorDetails() {
           </TouchableOpacity>
         )
       }
+
       {
         errorDetails.resolved && (errorDetails.resolved !== '') && (
-          <ThemedView>
-            <ThemedText style={styles.sectionTitle}>Solution</ThemedText>
+          <View>
+            <ThemedText style={styles.sectionTitle}>{i18next.t('solution')}</ThemedText>
             <ThemedText>{comments.find((comment) => comment.id === errorDetails.resolved)?.comment}</ThemedText>
             <ThemedText style={styles.commentAuthor}>
               - {idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.name} ({idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.role}) ({new Date(comments.find((comment) => comment.id === errorDetails.resolved)?.timestamp || 0).toLocaleString()})
@@ -267,20 +268,20 @@ export default function ErrorDetails() {
             {
               errorDetails.user === user && (
                 <TouchableOpacity onPress={() => handleMarkSolution(errorDetails.resolved)} style={styles.approveButton}>
-                  <ThemedText style={{color: 'white', textAlign: 'center'}}>Remove solution</ThemedText>
+                  <ThemedText style={{color: 'white', textAlign: 'center'}}>{i18next.t('removeSolution')}</ThemedText>
                 </TouchableOpacity>
               )
             }
-          </ThemedView>
+          </View>
         )
       }
         
 
-      <ThemedView style={styles.commentsSection}>
+      <View style={styles.commentsSection}>
         <ThemedText style={styles.sectionTitle}>{i18next.t('comments')}</ThemedText>
         {comments && comments.length > 0 &&
           comments.map((comment, index) => (
-            <ThemedView key={index} style={styles.comment}>
+            <View key={index} style={styles.comment}>
               <ThemedText>{comment.comment}</ThemedText>
               <ThemedText style={styles.commentAuthor}>
                 - {idUserMap[comment.user].name} ({idUserMap[comment.user].role}) ({new Date(comment.timestamp).toLocaleString()})
@@ -289,11 +290,11 @@ export default function ErrorDetails() {
                 errorDetails.user === user && (
                   errorDetails.resolved === comment.id ? (
                     <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
-                      <ThemedText style={{color: 'white', textAlign: 'center'}}>Remove solution</ThemedText>
+                      <ThemedText style={{color: 'white', textAlign: 'center'}}>{i18next.t('removeSolution')}</ThemedText>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
-                      <ThemedText style={{color: 'white', textAlign: 'center'}}>Mark as solution</ThemedText>
+                      <ThemedText style={{color: 'white', textAlign: 'center'}}>{i18next.t('addSolution')}</ThemedText>
                     </TouchableOpacity>
                   )
                 )
@@ -301,11 +302,11 @@ export default function ErrorDetails() {
               {
                 comment.user === user && (
                   <TouchableOpacity onPress={() => handleDeleteComment(comment.id || '')} style={styles.deleteButton}>
-                    <ThemedText style={{color: 'white', textAlign: 'center'}}>Delete</ThemedText>
+                    <ThemedText style={{color: 'white', textAlign: 'center'}}>{i18next.t('delete')}</ThemedText>
                   </TouchableOpacity>
                 )
               }
-            </ThemedView>
+            </View>
           ))}
         {user && (
           <>
@@ -317,11 +318,16 @@ export default function ErrorDetails() {
               onChangeText={(currComment: string) =>
                 setNewComment({ ...newComment, comment: currComment })
               }
+              multiline={true}
+              numberOfLines={4}
             />
-            <Button title={i18next.t('addComment')} onPress={handleAddComment} />
+            <TouchableOpacity onPress={handleAddComment} style={styles.addButton}>
+              <ThemedText style={{color: 'black', textAlign: 'center'}}>{i18next.t('addComment')}</ThemedText>
+            </TouchableOpacity>
+            {/* <Button title={i18next.t('addComment')} onPress={handleAddComment} /> */}
           </>
         )}
-      </ThemedView>
+      </View>
     </ScrollView>
   );
 }
@@ -376,7 +382,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     commentInput: {
-        height: 40,
+        // height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 8,
@@ -401,6 +407,15 @@ const styles = StyleSheet.create({
     approveButton: {
       marginBottom: 16,
       backgroundColor: '#107710',
+      color: 'green',
+      borderRadius: 2,
+      padding: 8,
+      textAlign: 'center',
+      width: 'auto',
+    },
+    addButton: {
+      marginBottom: 16,
+      backgroundColor: '#FFCF26',
       color: 'green',
       borderRadius: 2,
       padding: 8,

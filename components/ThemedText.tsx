@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   default: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: 'ComicSans',
+    fontFamily: 'SpaceGrotesk-Regular',
   },
   defaultSemiBold: {
     fontSize: 16,

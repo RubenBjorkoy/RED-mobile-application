@@ -7,18 +7,13 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
-import { ErrorProps } from '@/utils/types';
+import { ErrorProps, Filter } from '@/utils/types';
 import ErrorCard from '@/components/cards/errorCard';
 import FilterBar from '@/components/FilterBar';
 import apiUrl from '@/utils/apiUrls';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-
-interface Filter {
-  system?: string;
-  subsystem?: string;
-  search?: string;
-}
+import i18next from 'i18next';
 
 export default function UnfilteredScreen() {
   const [errors, setErrors] = React.useState<ErrorProps[]>([]);
@@ -69,8 +64,10 @@ export default function UnfilteredScreen() {
             onRefresh={onRefresh}
           />
         }
-        style={styles.container}>
-        <FilterBar onFilterChange={handleFilterChange} />
+        style={styles.container}><View>
+        <ThemedText type="title">{i18next.t('allErrors')}</ThemedText>
+          </View>
+        <FilterBar onFilterChange={handleFilterChange} expanded={true} />
         <ThemedView>
           {
             errors.map((error, index) => {

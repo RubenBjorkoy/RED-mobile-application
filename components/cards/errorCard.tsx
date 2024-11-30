@@ -16,9 +16,9 @@ export default function ErrorCard(error: ErrorProps) {
         <ThemedView style={styles.container}>
             {
                 error.resolved === '' ? (
-                    <ThemedText style={styles.notResolved}>Not resolved</ThemedText>
+                    <ThemedText style={styles.notResolved}>{i18next.t('notResolved')}</ThemedText>
                 ) : (
-                    <ThemedText style={styles.resolved}>Resolved</ThemedText>
+                    <ThemedText style={styles.resolved}>{i18next.t('resolved')}</ThemedText>
                 )
             }
             <ThemedText style={styles.setColorDark} type="subtitle">{error.title}</ThemedText>
