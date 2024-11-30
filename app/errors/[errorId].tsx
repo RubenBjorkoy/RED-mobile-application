@@ -105,10 +105,10 @@ export default function ErrorDetails() {
         body: JSON.stringify(freshComment),
       });
       if (!response.ok) throw new Error('Error adding comment');
-      // const updatedComments = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
+      const updatedComments = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
 
-      // const updatedCommentsJson = await updatedComments.json();
-      // setComments(updatedCommentsJson);
+      const updatedCommentsJson = await updatedComments.json();
+      setComments(updatedCommentsJson);
       setNewComment({
         id: '',
         comment: '',
