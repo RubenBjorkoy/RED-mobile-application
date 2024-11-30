@@ -10,6 +10,7 @@ import {
   Alert,
   RefreshControl,
   TouchableOpacity,
+  BackHandler
 } from 'react-native';
 import { useRouter, useGlobalSearchParams } from 'expo-router';
 import apiUrl from '@/utils/apiUrls';
@@ -19,6 +20,19 @@ import { ImageProps } from '@/utils/types';
 import i18next from 'i18next';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+function useBackButton(handler: () => void) {
+  useEffect(() => {
+      const listener = () => {
+          handler();
+          return true;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', listener);
+
+      return () => backHandler.remove();
+  }, [handler]);
+}
 
 export default function ErrorDetails() {
   const { errorId } = useGlobalSearchParams();
@@ -36,6 +50,14 @@ export default function ErrorDetails() {
   const [user, setUser] = useState<string>('');
   const [idUserMap, setIdUserMap] = useState<{ [key: string]: {name: string, role: string} }>({});
   const [reloading, setReloading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const backButtonHandler = () => {
+    router.back();
+    return false;
+  };
+
+  useBackButton(backButtonHandler);
 
   const fetchDetails = async () => {
     setReloading(true);
@@ -230,7 +252,7 @@ export default function ErrorDetails() {
       {
         errorDetails.user === user && (
           <TouchableOpacity onPress={() => {}} style={styles.deleteButton}>
-            <ThemedText>Delete</ThemedText>
+            <ThemedText style={{color: 'white', textAlign: 'center'}}>Delete</ThemedText>
           </TouchableOpacity>
         )
       }
@@ -245,7 +267,7 @@ export default function ErrorDetails() {
             {
               errorDetails.user === user && (
                 <TouchableOpacity onPress={() => handleMarkSolution(errorDetails.resolved)} style={styles.approveButton}>
-                  <ThemedText>Remove solution</ThemedText>
+                  <ThemedText style={{color: 'white', textAlign: 'center'}}>Remove solution</ThemedText>
                 </TouchableOpacity>
               )
             }
@@ -264,19 +286,14 @@ export default function ErrorDetails() {
                 - {idUserMap[comment.user].name} ({idUserMap[comment.user].role}) ({new Date(comment.timestamp).toLocaleString()})
               </ThemedText>
               {
-                // errorDetails.user === user && (
-                //   <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
-                //     <ThemedText>Mark as solution</ThemedText>
-                //   </TouchableOpacity>
-                // )
                 errorDetails.user === user && (
                   errorDetails.resolved === comment.id ? (
                     <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
-                      <ThemedText>Remove solution</ThemedText>
+                      <ThemedText style={{color: 'white', textAlign: 'center'}}>Remove solution</ThemedText>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity onPress={() => handleMarkSolution(comment.id || '')} style={styles.approveButton}>
-                      <ThemedText>Mark as solution</ThemedText>
+                      <ThemedText style={{color: 'white', textAlign: 'center'}}>Mark as solution</ThemedText>
                     </TouchableOpacity>
                   )
                 )
@@ -284,7 +301,7 @@ export default function ErrorDetails() {
               {
                 comment.user === user && (
                   <TouchableOpacity onPress={() => handleDeleteComment(comment.id || '')} style={styles.deleteButton}>
-                    <ThemedText>Delete</ThemedText>
+                    <ThemedText style={{color: 'white', textAlign: 'center'}}>Delete</ThemedText>
                   </TouchableOpacity>
                 )
               }
@@ -374,11 +391,12 @@ const styles = StyleSheet.create({
     deleteButton: {
       marginBottom: 16,
       backgroundColor: '#cc1010',
-      color: 'red',
+      color: 'white',
       borderRadius: 2,
       padding: 8,
       textAlign: 'center',
       width: 'auto',
+      elevation: 5,
     },
     approveButton: {
       marginBottom: 16,

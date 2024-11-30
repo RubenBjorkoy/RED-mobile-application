@@ -13,6 +13,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { User } from '@/utils/types';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import apiUrl from '@/utils/apiUrls';
+import { Alert } from 'react-native';
 
 export default function SettingsScreen({ navigation }: any) {
     const { refreshTabs } = useContext(TabRefreshContext);
@@ -81,6 +82,13 @@ export default function SettingsScreen({ navigation }: any) {
 
     const apply = async () => {
         try {
+            //Check if the username is already taken
+            const allUsers = await fetch(`${apiUrl}/users`);
+            const allUsersJson = await allUsers.json();
+            if (allUsersJson.some((u: any) => u.username === user.username && u.id !== user.id)) {
+                Alert.alert('Error', 'Username is already taken.');
+                return;
+            }
             await fetch(`${apiUrl}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {

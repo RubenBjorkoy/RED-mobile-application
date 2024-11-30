@@ -42,13 +42,13 @@ export default function TabLayout() {
         key={tabKey}
         initialRouteName='index'
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-          tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].text,
+          tabBarActiveTintColor: Colors['dark'].tint,
+          tabBarInactiveTintColor: Colors['dark'].text,
           tabBarIndicatorStyle: {
-            backgroundColor: Colors[colorScheme ?? 'light'].tint,
+            backgroundColor: Colors['dark'].tint,
           },
           tabBarStyle: {
-            backgroundColor: Colors[colorScheme ?? 'light'].background,
+            backgroundColor: Colors['dark'].background,
             position: 'absolute',
             bottom: 0,
             left: 0,
