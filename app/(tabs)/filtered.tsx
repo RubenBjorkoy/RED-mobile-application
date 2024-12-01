@@ -52,7 +52,6 @@ export default function UnfilteredScreen() {
   }
 
   const handleRedirect = (errorId: string) => {
-    console.log('Redirecting to error', errorId);
     router.push(`/errors/${errorId}` as const);
   }
 

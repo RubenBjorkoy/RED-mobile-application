@@ -77,7 +77,7 @@ export default function SettingsScreen({ navigation }: any) {
     };
 
     const cancel = () => {
-        console.log('Cancel pressed');
+        setUser(staticUser);
     };
 
     const apply = async () => {
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     },
     picker: {
         gap: 8,
-        height: Platform.OS === 'ios' ? 150 : 60, //The picker on IOS is a wheel, so it just overflows beneath the other elements. This way should fix that
+        height: Platform.OS === 'ios' ? 210 : 60, //The picker on IOS is a wheel, so it just overflows beneath the other elements. This way should fix that
         color: 'white',
         width: '100%',
         borderColor: 'gray',

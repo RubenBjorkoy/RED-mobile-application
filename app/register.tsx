@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
   },
   picker: {
-    height: Platform.OS === 'ios' ? 150 : 60,
+    height: Platform.OS === 'ios' ? 210 : 60,
     color: 'white',
     backgroundColor: '#333',
     padding: 0,

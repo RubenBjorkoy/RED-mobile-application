@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Alert } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ErrorProps, LocationProps, MarkerProps } from '@/utils/types';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
@@ -43,7 +43,7 @@ export default function MapScreen() {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                console.log('Permission to access location was denied');
+                Alert.alert('Error', 'Permission to access location was denied');
                 return;
             }
 
@@ -99,7 +99,7 @@ export default function MapScreen() {
                     longitudeDelta: 0.0421,
                 }}
                 onRegionChangeComplete={(region) => {
-                    // console.log(region);
+                    
                 }}
             >
                 {

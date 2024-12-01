@@ -107,6 +107,4 @@ i18next
     },
   });
 
-console.log(i18next.t('welcome'));
-
 export default i18next;

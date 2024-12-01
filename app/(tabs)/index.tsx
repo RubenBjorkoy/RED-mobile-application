@@ -212,7 +212,6 @@ export default function HomeScreen() {
     const handleFormSubmit = () => {
         if(!error.title || !system || !subsystem) {
             Alert.alert('Validation', 'Please fill out all fields');
-            console.log(error.title, error.system, error.subsystem);
             return;
         }
         uploadData(error);
