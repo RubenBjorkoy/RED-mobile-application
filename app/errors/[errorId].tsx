@@ -119,7 +119,6 @@ export default function ErrorDetails() {
     fetchDetails();
   }, [errorId]);
 
-  // Add a new comment
   const handleAddComment = async () => {
     if (!newComment.comment.trim()) {
       Alert.alert('Error', 'Comment cannot be empty');
@@ -222,7 +221,6 @@ export default function ErrorDetails() {
       return;
     }
     try {
-      //Delete all comments for the error as well
       const commentsResponse = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
       if (!commentsResponse.ok) throw new Error('Error fetching comments');
       const commentsData = await commentsResponse.json();
@@ -267,6 +265,11 @@ export default function ErrorDetails() {
       <ThemedText style={styles.system}>{author} ({errorDetails.user && idUserMap[errorDetails.user]?.role})</ThemedText>
       <ThemedText style={styles.system}>{errorDetails.system}</ThemedText>
       <ThemedText style={styles.subsystem}>{errorDetails.subsystem}</ThemedText>
+      <ThemedText style={styles.timestamp}>
+        {
+          new Date(errorDetails.timestamp).toLocaleString(i18next.language === 'en' ? 'en' : 'de-DE') //Apparently using 'no-NO' gives american times, though that's not what we use here in Norway
+        }
+      </ThemedText>
 
       {
         imageUrl && (
@@ -299,7 +302,9 @@ export default function ErrorDetails() {
             <ThemedText style={styles.sectionTitle}>{i18next.t('solution')}</ThemedText>
             <ThemedText>{comments.find((comment) => comment.id === errorDetails.resolved)?.comment}</ThemedText>
             <ThemedText style={styles.commentAuthor}>
-              - {idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.name} ({idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.role}) ({new Date(comments.find((comment) => comment.id === errorDetails.resolved)?.timestamp || 0).toLocaleString()})
+              - {idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.name} 
+              ({idUserMap[comments.find((comment) => comment.id === errorDetails.resolved)?.user || '']?.role}) 
+              ({new Date(comments.find((comment) => comment.id === errorDetails.resolved)?.timestamp || 0).toLocaleString(i18next.language === 'en' ? 'en' : 'de-DE')})
             </ThemedText>
             {
               errorDetails.user === user && (
@@ -320,7 +325,7 @@ export default function ErrorDetails() {
             <View key={index} style={styles.comment}>
               <ThemedText>{comment.comment}</ThemedText>
               <ThemedText style={styles.commentAuthor}>
-                - {idUserMap[comment.user].name} ({idUserMap[comment.user].role}) ({new Date(comment.timestamp).toLocaleString()})
+                - {idUserMap[comment.user].name} ({idUserMap[comment.user].role}) ({new Date(comment.timestamp).toLocaleString(i18next.language === 'en' ? 'en' : 'de-DE')})
               </ThemedText>
               {
                 errorDetails.user === user && (
@@ -470,5 +475,9 @@ const styles = StyleSheet.create({
       borderRadius: 4,
       padding: 12,
       alignItems: 'center',
+  },
+  timestamp: {
+    fontSize: 12,
+    color: 'gray',
   },
 });

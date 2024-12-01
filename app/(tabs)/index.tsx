@@ -36,6 +36,11 @@ const REVOLVE_COORDS: LocationProps = {
     longitude: 10.406951423569307,
 };
 
+const { height } = Dimensions.get('window');
+
+const MIN_FORM_HEIGHT = 20;
+const SCROLL_SPEED_SCALE = 30;
+
 export default function HomeScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
@@ -44,7 +49,6 @@ export default function HomeScreen() {
     const [picture, setPicture] = useState<PictureProps | null>(null);
     const [flash, setFlash] = useState<boolean>(false);
     const [downloaded, setDownloaded] = useState<boolean>(false);
-    const [formVisible, setFormVisible] = useState<boolean>(false);
     const [error, setError] = useState<ErrorProps>({
         title: '',
         image: '',
@@ -68,6 +72,9 @@ export default function HomeScreen() {
         { label: 'Telemetry', value: 'telemetry' },
     ]);
     const router = useRouter();
+    const formHeight = useSharedValue(0);
+    const startHeight = useSharedValue(0);
+    const [formOpen, setFormOpen] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -120,11 +127,14 @@ export default function HomeScreen() {
         }
     }, [system, subsystem]);
 
+
     const backButtonHandler = () => {
         if (picture) {
             handleRetakePicture();
+            closeForm();
             return true;
         }
+        closeForm();
         return false;
     };
 
@@ -167,21 +177,6 @@ export default function HomeScreen() {
 
     useBackButton(backButtonHandler);
 
-    //! Important! Make sure these come later than any hooks
-    if (!permission) {
-        //This means that the permissions aren't loaded yet
-        return <View />;
-    }
-    if (!permission.granted) {
-        //This is if the permissions are denied
-        return (
-            <View style={styles.container}>
-                <Text style={styles.message}>We need your permission to show the camera</Text>
-                <Button onPress={requestPermission} title="grant permission" />
-            </View>
-        );
-    }
-
     const doubleTap = Gesture.Tap()
         .numberOfTaps(2)
         .onEnd(() => {
@@ -214,12 +209,49 @@ export default function HomeScreen() {
             image: picture.base64!,
             timestamp: Date.now(),
         })
-        setFormVisible(true);
+        runOnJS(openForm)();
     };
+
+    const openForm = () => {
+        formHeight.value = withSpring(height * 0.5, { damping: 20 });
+        setFormOpen(true);
+    };
+
+    const closeForm = () => {
+        formHeight.value = withSpring(MIN_FORM_HEIGHT, { damping: 20 });
+        setFormOpen(false);
+    }
+
+    const gesture = Gesture.Pan()
+        .onBegin(() => {
+            startHeight.value = formHeight.value;
+        })
+        .onUpdate((event) => {
+            formHeight.value = Math.max(MIN_FORM_HEIGHT, Math.min(height * 0.5, startHeight.value - event.translationY));
+        })
+        .onEnd(() => {
+            if(formOpen) {
+                if(formHeight.value < height * 0.45) {
+                    runOnJS(closeForm)();
+                } else {
+                    runOnJS(openForm)();
+                }
+            } else {
+                if(formHeight.value > height * 0.1) {
+                    runOnJS(openForm)();
+                } else {
+                    runOnJS(closeForm)();
+                }
+            }
+        });
+
+    const formStyle = useAnimatedStyle(() => ({
+        height: formHeight.value,
+    }));
 
     const handleFormSubmit = () => {
         if(!error.title || !system || !subsystem) {
-            Alert.alert('Validation', 'Please fill out all fields');
+            Alert.alert(i18next.t('validation'), i18next.t('fillAllFields'));
             return;
         }
         uploadData(error);
@@ -235,24 +267,23 @@ export default function HomeScreen() {
         });
         setSystem('');
         setSubsystem('');
-        setFormVisible(false);
         setPicture(null);
     }
 
     const saveToLibrary = async (uri: string) => {
         try {
             await MediaLibrary.saveToLibraryAsync(uri);
-            Alert.alert('Success', 'Picture saved to gallery');
+            Alert.alert(i18next.t('success'), i18next.t('pictureSaved'));
             setDownloaded(true);
         } catch (error) {
-            Alert.alert('Error', 'Failed to save picture to gallery');
+            Alert.alert(i18next.t('error'), i18next.t('pictureNotSaved'));
             console.error(error);
         }
     }
 
     const handleRetakePicture = () => {
         Vibrate.rigid();
-        setFormVisible(false);
+        closeForm();
         setPicture(null);
     };
 
@@ -265,9 +296,17 @@ export default function HomeScreen() {
         setFlash(!flash);
     };
 
-    const handleFormVisible = () => {
-        Vibrate.light();
-        setFormVisible(!formVisible);
+    //! Important! Make sure these come later than any hooks
+    if (!permission) {
+        return <View />;
+    }
+    if (!permission.granted) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.message}>{i18next.t('cameraPermissions')}</Text>
+                <Button onPress={requestPermission} title={i18next.t('grantPermission')} />
+            </View>
+        );
     }
 
     return (
@@ -308,32 +347,30 @@ export default function HomeScreen() {
                             animateShutter={false}
                             ratio="4:3"
                         >
-                            <View style={styles.secondaryControls}>
-                                <TouchableOpacity style={styles.sideButton} onPress={handleFormVisible}>
-                                    <Text style={{color: "white"}}>Open forms</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.controls}>
-                                <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
-                                    <IconSymbol name="camera.rotate.fill" size={32} color="white" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={styles.shutterButton}
-                                    onPress={handleTakePicture}
-                                />
-                                <TouchableOpacity style={styles.sideButton} onPress={handleFlash}>
-                                    <MaterialIcons
-                                        name={flash ? 'flash-on' : 'flash-off'}
-                                        size={32}
-                                        color="white"
+                            <View style={styles.controlsContainer}>
+                                <View style={styles.controls}>
+                                    <TouchableOpacity style={styles.sideButton} onPress={handleFlipCamera}>
+                                        <IconSymbol name="camera.rotate.fill" size={32} color="white" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.shutterButton}
+                                        onPress={handleTakePicture}
                                     />
-                                </TouchableOpacity>
+                                    <TouchableOpacity style={styles.sideButton} onPress={handleFlash}>
+                                        <MaterialIcons
+                                            name={flash ? 'flash-on' : 'flash-off'}
+                                            size={32}
+                                            color={flash ? '#FFCF26' : 'white'}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </CameraView>
                     )}
-                    {formVisible && (
-                        <View style={styles.formOverlay}>
-                            <View>
+                    <GestureDetector gesture={gesture}>
+                        <Animated.View style={[styles.formOverlay, formStyle]}>
+                            <View style={styles.handle} />
+                            <View style={styles.formContent}>
                                 <Text style={styles.label}>{i18next.t('system')}:</Text>
                                 <DropDownPicker
                                     open={dropdownOpen}
@@ -375,47 +412,47 @@ export default function HomeScreen() {
                                     placeholderTextColor={'#ccc'}
                                     value={error.title}
                                     multiline={true}
+                                    numberOfLines={4}
                                     onChangeText={(text) => setError({ ...error, title: text })}
                                 />
-                            </View>
-                            <TouchableOpacity
+                                <TouchableOpacity
                                 style={styles.submitButton}
                                 onPress={handleFormSubmit}
-                            >
-                                <Text style={styles.submitButtonText}>Submit</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
+                                >
+                                    <Text style={styles.submitButtonText}>{i18next.t('submit')}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Animated.View>
+                    </GestureDetector>
                 </View>
             </GestureDetector>
         </GestureHandlerRootView>
     );
 }
-
-const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginBottom: tabBarHeight,
         paddingTop: topBarPadding,
-        padding: 0,
+        position: 'relative'
     },  
     camera: {
         flex: 1,
-        justifyContent: 'flex-end',
-        resizeMode: 'contain',
+    },
+    controlsContainer: {
+        position: 'absolute',
+        bottom: 20,
+        width: '100%',
+        zIndex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
     },
     controls: {
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-    },
-    secondaryControls: {
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
+        width: '100%',
     },
     sideButton: {
         alignItems: 'center',
@@ -424,8 +461,6 @@ const styles = StyleSheet.create({
         height: 60,
     },
     shutterButton: {
-        margin: 0,
-        padding: 0,
         width: 70,
         height: 70,
         borderRadius: 35,
@@ -465,17 +500,25 @@ const styles = StyleSheet.create({
     },
     formOverlay: {
         position: 'absolute',
-        top: '10%',
-        marginHorizontal: '10%',
-        width: '80%',
-        height: '70%',
-        padding: "3%",
-        minHeight: 400,
-        paddingBottom: 100,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        borderRadius: 10,
-        alignItems: 'center',
-        zIndex: 100,
+        bottom: 0,
+        width: '100%',
+        backgroundColor: '#000',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        zIndex: 4,
+        minHeight: MIN_FORM_HEIGHT,
+    },
+    handle: {
+        width: 120,
+        height: 6,
+        backgroundColor: '#ccc',
+        borderRadius: 3,
+        alignSelf: 'center',
+        marginVertical: 10,
+    },
+    formContent: {
+        padding: 20,
+        zIndex: 4,
     },
     label: {
         fontSize: 16,
@@ -496,7 +539,6 @@ const styles = StyleSheet.create({
         height: "auto"
     },
     submitButton: {
-        position: 'absolute',
         backgroundColor: '#FFCF26',
         padding: 20,
         width: '100%',
