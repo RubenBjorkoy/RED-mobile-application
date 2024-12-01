@@ -28,6 +28,7 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'eye.fill': 'visibility',
   'eye.slash.fill': 'visibility-off',
+  'arrow.2.circlepath': 'refresh',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

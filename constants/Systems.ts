@@ -12,9 +12,11 @@ export const systems = [
             "Electrical",
             "Finance",
             "HR",
+            "Kiosk",
             "Marketing",
             "Mechanical",
             "Production",
+            "Project",
             "Software",
         ]
     },

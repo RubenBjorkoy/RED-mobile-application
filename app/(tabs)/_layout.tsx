@@ -18,7 +18,6 @@ import { useNavigation } from '@react-navigation/native';
 const Tab = createMaterialTopTabNavigator();
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const [tabKey, setTabKey] = useState(0);
   const { navigate } = useNavigation<any>();
 

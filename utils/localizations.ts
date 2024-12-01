@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 const resources = {
     en: {
         translation: {
-            appName: "My App",
+            appName: "Revolve Error Database Mobile Interface",
             welcome: "Welcome to my app",
             settings: "Settings",
             username: "Username",
@@ -44,11 +44,15 @@ const resources = {
             personalErrors: "Personal errors",
             allErrors: "All errors",
             noImage: "No image",
+            viewInMap: "View in map",
+            clusterDetails: "Cluster details",
+            errors: "Errors",
+            close: "Close",
         }
     },
     no: {
         translation: {
-            appName: "Min app",
+            appName: "Revolve Error Database Mobile Interface",
             welcome: "Velkommen til min app",
             settings: "Innstillinger",
             username: "Brukernavn",
@@ -88,6 +92,10 @@ const resources = {
             personalErrors: "Personlige feil",
             allErrors: "Alle feil",
             noImage: "Ingen bilde",
+            viewInMap: "Se i kart",
+            clusterDetails: "Klyngeinformasjon",
+            errors: "feil",
+            close: "Lukk",
         }
     }
 }

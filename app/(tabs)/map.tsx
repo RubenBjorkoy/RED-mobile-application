@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import MapView, { Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { StyleSheet, View, TouchableOpacity, Text, Alert, Modal, FlatList } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Alert, Modal, FlatList, Animated } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ErrorProps, LocationProps, MarkerProps } from '@/utils/types';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import apiUrl from '@/utils/apiUrls';
 import { useGlobalSearchParams } from 'expo-router';
 import { useRouter } from 'expo-router';
+import i18next from 'i18next';
+import { ThemedText } from '@/components/ThemedText';
+import { TabRefreshContext } from '@/utils/TabRefreshContext';
 
 export default function MapScreen() {
+    const { refreshTabs } = useContext(TabRefreshContext);
     const params = useGlobalSearchParams();
     const router = useRouter();
     const mapRef = React.useRef<MapView>(null);
@@ -27,6 +31,8 @@ export default function MapScreen() {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
+    const [refreshing, setRefreshing] = React.useState(false);
+    const rotate = React.useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         (async () => {
@@ -46,35 +52,66 @@ export default function MapScreen() {
     }, []);
 
     const loadMarkers = async () => {
-        const errors = await fetch(`${apiUrl}/errors`);
-        const data = await errors.json();
-        const markerData: MarkerProps[] = data.map((error: ErrorProps) => ({
-            coordinate: {
-                latitude: error.location.latitude,
-                longitude: error.location.longitude,
-            },
-            title: error.title,
-            errorId: error.id,
-        }));
-        setMarkers(markerData);
+        setRefreshing(true);
+        try {
+            const response = await fetch(`${apiUrl}/errors`);
+            const data = await response.json();
+            const markerData = data.map((error: ErrorProps) => ({
+                coordinate: {
+                    latitude: error.location.latitude,
+                    longitude: error.location.longitude,
+                },
+                title: error.title,
+                errorId: error.id,
+            }));
+            setMarkers(markerData);
+        } catch (error) {
+            Alert.alert('Error', 'Something went wrong while fetching the data.');
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    const startRotation = () => {
+        Animated.loop(
+            Animated.timing(rotate, {
+                toValue: 1,
+                duration: 1000,
+                useNativeDriver: true,
+            })
+        ).start();
+    };
+
+    const stopRotation = () => {
+        rotate.setValue(0);
+        Animated.timing(rotate, { toValue: 0, duration: 0, useNativeDriver: true }).stop();
     };
 
     useEffect(() => {
-        clusterMarkers();
-    }, [mapRegion, markers]);
+        if(refreshing) {
+            startRotation();
+        } else {
+            stopRotation();
+        }
+    }, [refreshing]);
+
+    const spin = rotate.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
 
     const calculateClusterRadius = (latitudeDelta: number) => {
-        const baseRadius = 0.02;
+        const baseRadius = 0.06;
         const zoomFactor = latitudeDelta / 0.01;
         return baseRadius * zoomFactor;
     }
 
-    const clusterMarkers = () => {
+    const clusterMarkers = (markerData: MarkerProps[]) => {
         const clusterRadius = calculateClusterRadius(mapRegion.latitudeDelta);
-        const clusteredMarkers: any[] = [];
+        const clusteredMarkers: MarkerProps[][] = [];
         const processedMarkers: Set<number> = new Set();
 
-        markers.forEach((marker, i) => {
+        markerData.forEach((marker, i) => {
             if(processedMarkers.has(i)) return;
 
             const cluster = [marker];
@@ -92,6 +129,7 @@ export default function MapScreen() {
                     }
                 }
             });
+
             clusteredMarkers.push(cluster);
         })
 
@@ -118,23 +156,7 @@ export default function MapScreen() {
     };
 
     const renderClusterMarker = (cluster: MarkerProps[], index: number) => {
-        if(cluster.length === 1) {
-            const marker = cluster[0];
-            return (
-                <Marker
-                    key={index}
-                    coordinate={marker.coordinate}
-                    title={marker.title}
-                    onPress={() => router.push(`../errors/${marker.errorId}`)}
-                >
-                    <IconSymbol
-                        name="pin.fill"
-                        size={30}
-                        color={'#f00'}
-                    />
-                </Marker>
-            );
-        } else {
+        
             const clusterCenter = cluster.reduce((acc, curr) => ({
                 latitude: acc.latitude + curr.coordinate.latitude / cluster.length,
                 longitude: acc.longitude + curr.coordinate.longitude / cluster.length,
@@ -144,7 +166,6 @@ export default function MapScreen() {
                 <Marker
                     key={index}
                     coordinate={clusterCenter}
-                    title={`${cluster.length} errors`}
                     onPress={() => handleClusterPress(cluster)}
                 >
                     <View style={styles.numberCluster}>
@@ -152,23 +173,52 @@ export default function MapScreen() {
                     </View>
                 </Marker>
             );
-        }
     }
 
-    useEffect(() => {
-        if (params.latitude && params.longitude) {
+    const navigateToRegion = () => {
+        if(params.latitude && params.longitude) {
             const region = {
                 latitude: parseFloat(Array.isArray(params.latitude) ? params.latitude[0] : params.latitude),
                 longitude: parseFloat(Array.isArray(params.longitude) ? params.longitude[0] : params.longitude),
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
             };
-            mapRef.current?.animateToRegion(region, 1000); // Zoom to the marker
+            setMapRegion(region);
+            mapRef.current?.animateToRegion(region, 1000);
+        }
+    }
+
+    const handleRefresh = async () => {
+        await loadMarkers();
+    }
+
+    useEffect(() => {
+        if(params.latitude && params.longitude) {
+            loadMarkers().then(() => {
+                navigateToRegion();
+            })
         }
     }, [params.latitude, params.longitude]);
 
+    useEffect(() => {
+        clusterMarkers(markers);
+    }, [mapRegion]);
+
+    useEffect(() => {
+        if(refreshing) startRotation();
+        else stopRotation();
+    }, [refreshing]);
+
     return (
         <View style={styles.container}>
+            <TouchableOpacity
+                style={styles.refreshButton}
+                onPress={handleRefresh}
+            >
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                    <IconSymbol name="arrow.2.circlepath" size={30} color="#011" />
+                </Animated.View>
+            </TouchableOpacity>
             <MapView 
                 style={styles.map} 
                 ref={mapRef} 
@@ -180,7 +230,7 @@ export default function MapScreen() {
 
             <Modal visible={modalVisible} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <Text style={styles.modalTitle}>Cluster Details</Text>
+                    <ThemedText style={styles.modalTitle}>{i18next.t('clusterDetails')}</ThemedText>
                     <FlatList
                         data={selectedCluster}
                         keyExtractor={(item) => item.errorId ?? item.title}
@@ -192,7 +242,7 @@ export default function MapScreen() {
                                     router.push(`../errors/${item.errorId}`);
                                 }}
                             >
-                                <Text style={styles.listText}>{item.title}</Text>
+                                <ThemedText style={styles.listText}>{item.title}</ThemedText>
                             </TouchableOpacity>
                         )}
                     />
@@ -200,7 +250,7 @@ export default function MapScreen() {
                         style={styles.closeButton}
                         onPress={() => setModalVisible(false)}
                     >
-                        <Text style={styles.closeButtonText}>Close</Text>
+                        <Text style={styles.closeButtonText}>{i18next.t('close')}</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -214,6 +264,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: tabBarHeight,
+        paddingTop: topBarPadding,
     },
     map: {
         flex: 1,
@@ -233,15 +284,13 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     modalContainer: {
-        backgroundColor: 'white',
+        backgroundColor: '#011',
         padding: 20,
         borderRadius: 10,
         margin: 20,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
         elevation: 5,
+        maxHeight: '80%',
     },
     modalTitle: {
         fontSize: 20,
@@ -252,18 +301,20 @@ const styles = StyleSheet.create({
         padding: 15,
         borderBottomWidth: 1,
         borderColor: '#ccc',
+        backgroundColor: '#272727',
+        borderRadius: 5,
     },
     listText: {
         fontSize: 16,
     },
     closeButton: {
         marginTop: 20,
-        backgroundColor: '#007bff',
+        backgroundColor: '#FFCF26',
         padding: 10,
         borderRadius: 5,
     },
     closeButtonText: {
-        color: 'white',
+        color: '#011',
         fontSize: 16,
     },
     numberCluster: {
@@ -273,12 +324,21 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         textAlign: 'center',
         alignSelf: 'center',
-        borderColor: '#000',
+        borderColor: '#011',
         borderWidth: 1,
     },
     numberClusterText: {
-        color: '#000',
+        color: '#011',
         fontSize: 16,
         textAlign: 'center',
+    },
+    refreshButton: {
+        position: 'absolute',
+        top: topBarPadding + 16,
+        right: 16,
+        backgroundColor: '#FFCF26',
+        padding: 2,
+        borderRadius: 5,
+        zIndex: 1,
     },
 })

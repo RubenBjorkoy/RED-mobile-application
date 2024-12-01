@@ -76,12 +76,18 @@ export default function ErrorDetails() {
       setErrorDetails(errorData);
   
       const authorPromise = fetch(`${apiUrl}/users/${errorData.user}`);
-      const imagePromise = fetch(`${apiUrl}/images/${errorData.image}`);
+      
+      if(errorData.image) {
+        const imagePromise = fetch(`${apiUrl}/images/${errorData.image}`);
+        const imageResponse = await imagePromise;
+        if (!imageResponse.ok) throw new Error('Error fetching image');
+        const imageData: ImageProps = await imageResponse.json();
+        setImageUrl(imageData.image);
+      }
   
-      const [authorResponse, allUsersResponse, imageResponse, commentsResponse] = await Promise.all([
+      const [authorResponse, allUsersResponse, commentsResponse] = await Promise.all([
         authorPromise,
         allUsersPromise,
-        imagePromise,
         commentsPromise,
       ]);
   
@@ -96,10 +102,6 @@ export default function ErrorDetails() {
         idUserMap[user.id] = {"name": user.username, "role": user.role};
       });
       setIdUserMap(idUserMap);
-  
-      if (!imageResponse.ok) throw new Error('Error fetching image');
-      const imageData: ImageProps = await imageResponse.json();
-      setImageUrl(imageData.image);
   
       if (!commentsResponse.ok) throw new Error('Error fetching comments');
       const commentsData = await commentsResponse.json();
@@ -276,11 +278,13 @@ export default function ErrorDetails() {
           reloading ? <ThemedText>{i18next.t('loadingImage')}</ThemedText> : <ThemedText>{i18next.t('noImage')}</ThemedText>
         )
       }
-      <TouchableOpacity 
-          onPress={() => router.push(`../(tabs)/map?latitude=${errorDetails.location.latitude}&longitude=${errorDetails.location.longitude}&errorId=${errorDetails.id}`)} 
-          style={styles.mapButton}>
-          <ThemedText style={{color: 'white', textAlign: 'center'}}>View in Map</ThemedText>
-      </TouchableOpacity>
+      { (errorDetails.location.latitude) && 
+        (<TouchableOpacity 
+            onPress={() => router.push(`../(tabs)/map?latitude=${errorDetails.location.latitude}&longitude=${errorDetails.location.longitude}&errorId=${errorDetails.id}`)} 
+            style={styles.mapButton}>
+            <ThemedText style={{color: 'black', textAlign: 'center'}}>{i18next.t('viewInMap')}</ThemedText>
+        </TouchableOpacity>) 
+      }
       {
         errorDetails.user === user && (
           <TouchableOpacity onPress={() => handleDeleteError(errorDetails.id || '')} style={styles.deleteButton}>
@@ -462,7 +466,7 @@ const styles = StyleSheet.create({
     },
     mapButton: {
       marginBottom: 16,
-      backgroundColor: '#007bff',
+      backgroundColor: '#FFCF26',
       borderRadius: 4,
       padding: 12,
       alignItems: 'center',

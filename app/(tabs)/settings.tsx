@@ -81,7 +81,6 @@ export default function SettingsScreen({ navigation }: any) {
 
     const apply = async () => {
         try {
-            //Check if the username is already taken
             const allUsers = await fetch(`${apiUrl}/users`);
             const allUsersJson = await allUsers.json();
             if (allUsersJson.some((u: any) => u.username === user.username && u.id !== user.id)) {
@@ -190,11 +189,17 @@ export default function SettingsScreen({ navigation }: any) {
                             </View>
                         </View>
                         <View style={styles.inputContainer}>
-                            <Button title={i18next.t("cancel")} color="#cc0000" onPress={cancel} />
-                            <Button title={i18next.t("apply")} color="#00bb00" onPress={apply} />
+                            <TouchableOpacity onPress={cancel} style={styles.badButton}>
+                                <ThemedText style={styles.badButtonText}>{i18next.t("cancel")}</ThemedText>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={apply} style={styles.goodButton}>
+                                <ThemedText style={styles.goodButtonText}>{i18next.t("apply")}</ThemedText>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.logoutContainer}>
-                            <Button title={i18next.t("signout")} color="#ff0000" onPress={handleLogout} />
+                            <TouchableOpacity onPress={handleLogout} style={styles.badButton}>
+                                <ThemedText style={styles.badButtonText}>{i18next.t("signout")}</ThemedText>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </GestureHandlerRootView>
@@ -252,5 +257,34 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 16,
         top: 20,
+    },
+    goodButton: {
+        backgroundColor: '#FFCF26',
+        padding: 10,
+        borderRadius: 4,
+        marginTop: 10,
+        marginBottom: 20,
+        width: '100%',
+        minWidth: 100,
+        textAlign: 'center',
+    },
+    badButton: {
+        backgroundColor: '#ff0000',
+        padding: 10,
+        borderRadius: 4,
+        marginTop: 10,
+        width: '100%',
+        minWidth: 100,
+        textAlign: 'center',
+    },
+    badButtonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    goodButtonText: {
+        color: '#011',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
 });

@@ -9,7 +9,7 @@ import Vibrate from '@/utils/vibrate';
 import * as MediaLibrary from 'expo-media-library';
 import { PermissionResponse } from 'expo-media-library';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { PictureProps, ErrorProps } from '@/utils/types';
+import { PictureProps, ErrorProps, LocationProps } from '@/utils/types';
 import * as Location from 'expo-location';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import apiUrl from '@/utils/apiUrls';
@@ -31,6 +31,11 @@ function useBackButton(handler: () => void) {
     }, [handler]);
 }
 
+const REVOLVE_COORDS: LocationProps = {
+    latitude: 63.40893139771447,
+    longitude: 10.406951423569307,
+};
+
 export default function HomeScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
@@ -45,10 +50,7 @@ export default function HomeScreen() {
         image: '',
         system: '',
         subsystem: '',
-        location: {
-            latitude: 0,
-            longitude: 0,
-        },
+        location: REVOLVE_COORDS,
         timestamp: 0,
         resolved: '',
         user: "Ruben Bjørkøy",
@@ -72,6 +74,10 @@ export default function HomeScreen() {
             const { status } = await Location.requestForegroundPermissionsAsync();
             if(status !== 'granted') {
                 Alert.alert('Permission to access location was denied');
+                setError({
+                    ...error,
+                    location: REVOLVE_COORDS,
+                });
             } else {
                 const currentLocation = await Location.getCurrentPositionAsync({});
                 setError({
@@ -137,15 +143,17 @@ export default function HomeScreen() {
         const imageData = {
             image: data.image,
         };
-        const imageResponse = await fetch(`${apiUrl}/images`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(imageData),
-        });
-        const uploadedImage = await imageResponse.json();
-        errorData.image = uploadedImage.id;
+        if(imageData.image !== '') {
+            const imageResponse = await fetch(`${apiUrl}/images`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(imageData),
+            });
+            const uploadedImage = await imageResponse.json();
+            errorData.image = uploadedImage.id;
+        }
         const errorResponse = await fetch(`${apiUrl}/errors`, {
             method: 'POST',
             headers: {
@@ -215,16 +223,12 @@ export default function HomeScreen() {
             return;
         }
         uploadData(error);
-        Alert.alert('Success', 'Error reported');
         setError({
+            ...error,
             title: '',
             image: '',
             system: error.system,
             subsystem: error.subsystem,
-            location: {
-                latitude: 0,
-                longitude: 0,
-            },
             timestamp: 0,
             resolved: '',
             user: '',
