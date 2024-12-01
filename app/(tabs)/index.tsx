@@ -75,6 +75,7 @@ export default function HomeScreen() {
     const formHeight = useSharedValue(0);
     const startHeight = useSharedValue(0);
     const [formOpen, setFormOpen] = useState(false);
+    const [isInsideDropdown, setIsInsideDropdown] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -213,7 +214,7 @@ export default function HomeScreen() {
     };
 
     const openForm = () => {
-        formHeight.value = withSpring(height * 0.5, { damping: 20 });
+        formHeight.value = withSpring(height * 0.7, { damping: 20 });
         setFormOpen(true);
     };
 
@@ -224,14 +225,23 @@ export default function HomeScreen() {
 
     const gesture = Gesture.Pan()
         .onBegin(() => {
+            if(isInsideDropdown) {
+                return;
+            }
             startHeight.value = formHeight.value;
         })
         .onUpdate((event) => {
-            formHeight.value = Math.max(MIN_FORM_HEIGHT, Math.min(height * 0.5, startHeight.value - event.translationY));
+            if(isInsideDropdown) {
+                return;
+            }
+            formHeight.value = Math.max(MIN_FORM_HEIGHT, Math.min(height * 0.7, startHeight.value - event.translationY));
         })
         .onEnd(() => {
+            if(isInsideDropdown) {
+                return;
+            }
             if(formOpen) {
-                if(formHeight.value < height * 0.45) {
+                if(formHeight.value < height * 0.65) {
                     runOnJS(closeForm)();
                 } else {
                     runOnJS(openForm)();
@@ -373,37 +383,46 @@ export default function HomeScreen() {
                             <View style={styles.formContent}>
                                 <Text style={styles.label}>{i18next.t('system')}:</Text>
                                 <DropDownPicker
+                                    style={styles.dropdownStyle}
+                                    badgeColors={['#FFCF26']}
                                     open={dropdownOpen}
                                     value={system}
                                     items={dropdownItems}
-                                    setOpen={setDropdownOpen}
+                                    setOpen={(open) => {
+                                        setDropdownOpen(open);
+                                    }}
                                     setValue={setSystem}
                                     setItems={setDropdownItems}
                                     zIndex={2}
                                     placeholder={i18next.t('selectSystem')}
-                                    listMode='SCROLLVIEW'
-                                    scrollViewProps={{
-                                        persistentScrollbar: true,
-                                        nestedScrollEnabled: true,
-                                        decelerationRate: 'fast',
-                                    }}
+                                    listMode='MODAL'
+                                    modalProps={{ animationType: 'slide' }}
+                                    modalContentContainerStyle={styles.modalStyle}
+                                    modalTitleStyle={styles.modalContentTitle}
+                                    modalTitle={i18next.t('selectSystem')}
+                                    closeIconStyle={styles.modalCloseIcon}
+                                    textStyle={styles.modalContentText}
                                 />
                                 <Text style={styles.label}>{i18next.t('subsystem')}:</Text>
                                 <DropDownPicker
+                                    style={styles.dropdownStyle}
                                     open={subsystemDropdownOpen}
                                     value={subsystem}
                                     items={subsystemDropdownItems}
-                                    setOpen={setSubsystemDropdownOpen}
+                                    setOpen={(open) => {
+                                        setSubsystemDropdownOpen(open);
+                                    }}
                                     setValue={setSubsystem}
                                     setItems={setSubsystemDropdownItems}
                                     zIndex={1}
                                     placeholder={i18next.t('selectSubsystem')}
-                                    listMode='SCROLLVIEW'
-                                    scrollViewProps={{
-                                        persistentScrollbar: true,
-                                        nestedScrollEnabled: true,
-                                        decelerationRate: 'fast',
-                                    }}
+                                    listMode='MODAL'
+                                    modalProps={{ animationType: 'slide' }}
+                                    modalContentContainerStyle={styles.modalStyle}
+                                    modalTitleStyle={styles.modalContentTitle}
+                                    modalTitle={i18next.t('selectSubsystem')}
+                                    closeIconStyle={styles.modalCloseIcon}
+                                    textStyle={styles.modalContentText}
                                 />
                                 <Text style={styles.label}>{i18next.t('describeError')}:</Text>
                                 <TextInput
@@ -552,5 +571,30 @@ const styles = StyleSheet.create({
     submitButtonText: {
         color: 'black',
         fontSize: 16,
+    },
+    dropdownStyle: {
+        backgroundColor: '#171717',
+        borderColor: '#171717',
+    },
+    modalStyle: {
+        backgroundColor: '#171717',
+        padding: 16,
+        borderRadius: 8,
+        color: 'white',
+    },
+    modalContentTitle: {
+        backgroundColor: '#171717',
+        padding: 16,
+        borderRadius: 8,
+        color: 'white',
+    },
+    modalContentText: {
+        backgroundColor: '#171717',
+        color: 'white',
+    },
+    modalCloseIcon: {
+        backgroundColor: '#FFCF26',
+        borderRadius: 80,
+        padding: 20,
     },
 });

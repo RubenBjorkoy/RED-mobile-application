@@ -365,7 +365,6 @@ export default function ErrorDetails() {
             <TouchableOpacity onPress={handleAddComment} style={styles.addButton}>
               <ThemedText style={{color: 'black', textAlign: 'center'}}>{i18next.t('addComment')}</ThemedText>
             </TouchableOpacity>
-            {/* <Button title={i18next.t('addComment')} onPress={handleAddComment} /> */}
           </>
         )}
       </View>
