@@ -4,7 +4,6 @@ import { StyleSheet, Image, Platform, View, ScrollView, RefreshControl, SafeArea
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import { ErrorProps, Filter } from '@/utils/types';
@@ -67,7 +66,7 @@ export default function UnfilteredScreen() {
         <ThemedText type="title">{i18next.t('allErrors')}</ThemedText>
           </View>
         <FilterBar onFilterChange={handleFilterChange} expanded={true} />
-        <ThemedView>
+        <View>
           {
             errors.map((error, index) => {
               if(!error.title.toLowerCase().includes(filter.search?.toLowerCase() || '')) return null;
@@ -80,7 +79,7 @@ export default function UnfilteredScreen() {
               )
             })
           }
-        </ThemedView>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

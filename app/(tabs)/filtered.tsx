@@ -4,7 +4,6 @@ import { StyleSheet, Image, Platform, View, ScrollView, RefreshControl, SafeArea
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import { ErrorProps, Filter } from '@/utils/types';

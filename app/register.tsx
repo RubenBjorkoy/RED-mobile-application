@@ -20,7 +20,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useNavigation } from '@react-navigation/native';
 import apiUrl from '@/utils/apiUrls';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
 export default function RegisterScreen() {
   const [user, setUser] = useState({

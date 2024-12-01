@@ -3,7 +3,6 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useState, useEffect, useContext } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { tabBarHeight, topBarPadding } from '@/constants/Measures';
 import i18next from 'i18next';
@@ -129,7 +128,7 @@ export default function SettingsScreen({ navigation }: any) {
                         </View>
                         <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("password")}</ThemedText>
-                            <ThemedView>
+                            <View>
                                 <TextInput
                                     secureTextEntry={hidePassword}
                                     style={styles.input}
@@ -141,7 +140,7 @@ export default function SettingsScreen({ navigation }: any) {
                                 <TouchableOpacity onPress={() => {setHidePassword(!hidePassword)}} style={styles.showPasswordIcon}>
                                     <ThemedText><IconSymbol name={hidePassword ? 'eye.slash.fill' : 'eye.fill'} color="white" size={20} /> </ThemedText>
                                 </TouchableOpacity>
-                            </ThemedView>
+                            </View>
                         </View>
                         <View style={styles.inputContainer}>
                             <ThemedText>{i18next.t("group")}</ThemedText>

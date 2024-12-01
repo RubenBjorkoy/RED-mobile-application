@@ -8,12 +8,11 @@ import apiUrl from '@/utils/apiUrls';
 import i18next from 'i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { ThemedView } from '../ThemedView';
 
 export default function ErrorCard(error: ErrorProps) {
 
     return (
-        <ThemedView style={styles.container}>
+        <View style={styles.container}>
             {
                 error.resolved === '' ? (
                     <ThemedText style={styles.notResolved}>{i18next.t('notResolved')}</ThemedText>
@@ -24,7 +23,7 @@ export default function ErrorCard(error: ErrorProps) {
             <ThemedText style={styles.setColorDark} type="subtitle">{error.title}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.system}</ThemedText>
             <ThemedText style={styles.setColorDark}>{error.subsystem}</ThemedText>
-        </ThemedView>
+        </View>
     );
 }
 

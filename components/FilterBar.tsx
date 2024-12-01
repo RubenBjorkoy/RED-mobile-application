@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, TextInput, Text } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
 import i18next from 'i18next';
 import { systems } from '@/constants/Systems';
 
@@ -48,7 +47,7 @@ export default function FilterBar({ onFilterChange, expanded }: FilterBarProps) 
 
     return (
         <View>
-            <ThemedView>
+            <View>
                 <TextInput
                     placeholder={i18next.t('search')}
                     placeholderTextColor={'#aaaaaa'}
@@ -56,9 +55,9 @@ export default function FilterBar({ onFilterChange, expanded }: FilterBarProps) 
                     value={search}
                     onChangeText={setSearch}
                 />
-            </ThemedView>
+            </View>
             { expanded &&
-            (<ThemedView>
+            (<View>
                 <DropDownPicker
                     open={systemDropdownOpen}
                     value={system}
@@ -91,7 +90,7 @@ export default function FilterBar({ onFilterChange, expanded }: FilterBarProps) 
                         decelerationRate: 'fast',
                     }}
                 />
-            </ThemedView>)
+            </View>)
             }
         </View>
     );

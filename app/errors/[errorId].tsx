@@ -18,7 +18,6 @@ import { ErrorProps, CommentProps } from '@/utils/types';
 import { ThemedText } from '@/components/ThemedText';
 import { ImageProps } from '@/utils/types';
 import i18next from 'i18next';
-import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function useBackButton(handler: () => void) {
@@ -221,6 +220,17 @@ export default function ErrorDetails() {
       return;
     }
     try {
+      //Delete all comments for the error as well
+      const commentsResponse = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
+      if (!commentsResponse.ok) throw new Error('Error fetching comments');
+      const commentsData = await commentsResponse.json();
+      commentsData.forEach(async (comment: CommentProps) => {
+        const response = await fetch(`${apiUrl}/comments/${comment.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Error deleting comment');
+      });
+
       const response = await fetch(`${apiUrl}/errors/${errorId}`, {
         method: 'DELETE',
       });
@@ -252,7 +262,7 @@ export default function ErrorDetails() {
         )
       }
       <ThemedText style={styles.title}>{errorDetails.title}</ThemedText>
-      <ThemedText style={styles.system}>{author}</ThemedText>
+      <ThemedText style={styles.system}>{author} ({errorDetails.user && idUserMap[errorDetails.user]?.role})</ThemedText>
       <ThemedText style={styles.system}>{errorDetails.system}</ThemedText>
       <ThemedText style={styles.subsystem}>{errorDetails.subsystem}</ThemedText>
 
@@ -266,6 +276,11 @@ export default function ErrorDetails() {
           reloading ? <ThemedText>{i18next.t('loadingImage')}</ThemedText> : <ThemedText>{i18next.t('noImage')}</ThemedText>
         )
       }
+      <TouchableOpacity 
+          onPress={() => router.push(`../(tabs)/map?latitude=${errorDetails.location.latitude}&longitude=${errorDetails.location.longitude}&errorId=${errorDetails.id}`)} 
+          style={styles.mapButton}>
+          <ThemedText style={{color: 'white', textAlign: 'center'}}>View in Map</ThemedText>
+      </TouchableOpacity>
       {
         errorDetails.user === user && (
           <TouchableOpacity onPress={() => handleDeleteError(errorDetails.id || '')} style={styles.deleteButton}>
@@ -444,5 +459,12 @@ const styles = StyleSheet.create({
     },
     resolved: {
         color: 'green',
-    }
+    },
+    mapButton: {
+      marginBottom: 16,
+      backgroundColor: '#007bff',
+      borderRadius: 4,
+      padding: 12,
+      alignItems: 'center',
+  },
 });
