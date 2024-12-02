@@ -14,6 +14,7 @@ import SettingsScreen from './settings';
 import { tabBarHeight } from '@/constants/Measures';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import i18next from 'i18next';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -55,15 +56,14 @@ export default function TabLayout() {
             height: tabBarHeight,
             elevation: Platform.OS === 'android' ? 5 : 0,
           },
-          tabBarShowLabel: false,
+          tabBarShowLabel: false, 
           swipeEnabled: true,
         }}
       >
         <Tab.Screen
           name="map"
           options={{
-            tabBarShowLabel: false,
-            title: 'Map',
+            title: i18next.t('mapTitle'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
           }}
           component={MapScreen}
@@ -71,7 +71,7 @@ export default function TabLayout() {
         <Tab.Screen
           name="filtered"
           options={{
-            title: 'Your Errors',
+            title: i18next.t('filteredTitle'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="slider.horizontal.3" color={color} />,
           }}
           component={FilteredScreen}
@@ -79,7 +79,7 @@ export default function TabLayout() {
         <Tab.Screen
           name="index"
           options={{
-            title: 'Camera',
+            title: i18next.t('cameraTitle'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.fill" color={color} />,
           }}
           component={HomeScreen}
@@ -87,7 +87,7 @@ export default function TabLayout() {
         <Tab.Screen
           name="unfiltered"
           options={{
-            title: 'All Errors',
+            title: i18next.t('unfilteredTitle'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="line.horizontal.3" color={color} />,
           }}
           component={UnfilteredScreen}
@@ -95,7 +95,7 @@ export default function TabLayout() {
         <Tab.Screen
           name="settings"
           options={{
-            title: 'Settings',
+            title: i18next.t('settingsTitle'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear.circle.fill" color={color} />,
           }}
           component={SettingsScreen}

@@ -397,11 +397,11 @@ export default function HomeScreen() {
                                     placeholder={i18next.t('selectSystem')}
                                     listMode='MODAL'
                                     modalProps={{ animationType: 'slide' }}
+                                    modalTitle={i18next.t('selectSystem')}
                                     modalContentContainerStyle={styles.modalStyle}
                                     modalTitleStyle={styles.modalContentTitle}
-                                    modalTitle={i18next.t('selectSystem')}
-                                    closeIconStyle={styles.modalCloseIcon}
                                     textStyle={styles.modalContentText}
+                                    theme="DARK"
                                 />
                                 <Text style={styles.label}>{i18next.t('subsystem')}:</Text>
                                 <DropDownPicker
@@ -418,11 +418,11 @@ export default function HomeScreen() {
                                     placeholder={i18next.t('selectSubsystem')}
                                     listMode='MODAL'
                                     modalProps={{ animationType: 'slide' }}
+                                    modalTitle={i18next.t('selectSubsystem')}
                                     modalContentContainerStyle={styles.modalStyle}
                                     modalTitleStyle={styles.modalContentTitle}
-                                    modalTitle={i18next.t('selectSubsystem')}
-                                    closeIconStyle={styles.modalCloseIcon}
                                     textStyle={styles.modalContentText}
+                                    theme="DARK"
                                 />
                                 <Text style={styles.label}>{i18next.t('describeError')}:</Text>
                                 <TextInput
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     handle: {
         width: 120,
         height: 6,
-        backgroundColor: '#ccc',
+        backgroundColor: '#FFCF26',
         borderRadius: 3,
         alignSelf: 'center',
         marginVertical: 10,
@@ -550,6 +550,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginBottom: 16,
+        fontSize: 16,
         color: 'white',
         maxHeight: "40%",
         width: '100%',
@@ -559,7 +560,7 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         backgroundColor: '#FFCF26',
-        padding: 20,
+        padding: 12,
         width: '100%',
         borderRadius: 5,
         alignItems: 'center',
@@ -570,7 +571,7 @@ const styles = StyleSheet.create({
     },
     submitButtonText: {
         color: 'black',
-        fontSize: 16,
+        fontSize: 20,
     },
     dropdownStyle: {
         backgroundColor: '#171717',
@@ -591,10 +592,6 @@ const styles = StyleSheet.create({
     modalContentText: {
         backgroundColor: '#171717',
         color: 'white',
-    },
-    modalCloseIcon: {
-        backgroundColor: '#FFCF26',
-        borderRadius: 80,
-        padding: 20,
+        fontSize: 16,
     },
 });

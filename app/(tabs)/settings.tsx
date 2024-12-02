@@ -111,7 +111,6 @@ export default function SettingsScreen({ navigation }: any) {
                 contentContainerStyle={styles.contentContainer}
                 style={styles.container}>
                 <GestureHandlerRootView>
-                    <View style={styles.container}>
                         <View style={styles.titleContainer}>
                             <ThemedText type="title">{i18next.t("settings")}</ThemedText>
                         </View>
@@ -201,7 +200,6 @@ export default function SettingsScreen({ navigation }: any) {
                                 <ThemedText style={styles.badButtonText}>{i18next.t("signout")}</ThemedText>
                             </TouchableOpacity>
                         </View>
-                    </View>
                 </GestureHandlerRootView>
             </ScrollView>
         </SafeAreaView>

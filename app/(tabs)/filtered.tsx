@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     paddingTop: topBarPadding,
     height: '100%',
     flexGrow: 1,
-    backgroundColor: '#171717',
   },
   contentContainer: {
     flexGrow: 1,

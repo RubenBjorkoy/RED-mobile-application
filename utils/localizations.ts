@@ -57,6 +57,11 @@ const resources = {
             pictureSaved: "Picture saved to your gallery",
             pictureNotSaved: "Failed to save picture to gallery",
             submit: "Submit",
+            mapTitle: "Map",
+            filteredTitle: "Your Errors",
+            cameraTitle: "Camera",
+            unfilteredTitle: "All Errors",
+            settingsTitle: "Settings",
         }
     },
     no: {
@@ -114,6 +119,11 @@ const resources = {
             pictureSaved: "Bilde lagret til galleriet",
             pictureNotSaved: "Kunne ikke lagre bildet til galleriet",
             submit: "Send inn",
+            mapTitle: "Kart",
+            filteredTitle: "Dine feil",
+            cameraTitle: "Kamera",
+            unfilteredTitle: "Alle feil",
+            settingsTitle: "Innstillinger",
         }
     }
 }
