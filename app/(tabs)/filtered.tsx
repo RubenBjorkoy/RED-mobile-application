@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Image, Platform, View, ScrollView, RefreshControl, SafeAreaView, TouchableOpacity } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';

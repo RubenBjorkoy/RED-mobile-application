@@ -146,7 +146,7 @@ export default function HomeScreen() {
             system: data.system,
             subsystem: data.subsystem,
             location: data.location,
-            timestamp: data.timestamp,
+            timestamp: data.timestamp !== 0 ? data.timestamp : Date.now(),
             resolved: data.resolved,
             user: userToken,
             image: null,
