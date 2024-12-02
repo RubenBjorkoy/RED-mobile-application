@@ -15,8 +15,8 @@ const MAPPING = {
   'camera.rotate.fill': 'flip-camera-ios',
   'bolt.fill': 'flash-on',
   'bolt.slash.fill': 'flash-off',
-  'slider.horizontal.3': 'filter-list', //TODO: Find better icons
-  'line.horizontal.3': 'filter-list-off', //TODO: Find better icons
+  'slider.horizontal.3': 'filter-list',
+  'line.horizontal.3': 'filter-list-off'
   'map.fill': 'map',
   'gear.circle.fill': 'settings',
   'location.fill': 'my-location',
