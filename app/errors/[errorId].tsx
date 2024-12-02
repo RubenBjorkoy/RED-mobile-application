@@ -253,6 +253,7 @@ export default function ErrorDetails() {
   return (
     <ScrollView 
       refreshControl={<RefreshControl refreshing={reloading} onRefresh={fetchDetails} />}
+      style={styles.container}
       contentContainerStyle={styles.container}>
       {
         errorDetails.resolved && (errorDetails.resolved !== '') && (
