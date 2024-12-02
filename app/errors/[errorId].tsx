@@ -221,6 +221,13 @@ export default function ErrorDetails() {
       return;
     }
     try {
+      if (errorDetails?.image) {
+        const imageResponse = await fetch(`${apiUrl}/images/${errorDetails.image}`, {
+          method: 'DELETE',
+        });
+        if (!imageResponse.ok) throw new Error('Error deleting image');
+      }
+
       const commentsResponse = await fetch(`${apiUrl}/comments?errorId=${errorId}`);
       if (!commentsResponse.ok) throw new Error('Error fetching comments');
       const commentsData = await commentsResponse.json();
@@ -377,6 +384,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 16,
+        paddingBottom: 320,
     },
     loadingContainer: {
         flex: 1,
